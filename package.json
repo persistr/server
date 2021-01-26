@@ -1,0 +1,15 @@
+{
+  "name": "root",
+  "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "lerna": "^3.16.4"
+  },
+  "scripts": {
+    "build": "npx lerna bootstrap",
+    "start": "npm start --prefix packages/server/",
+    "createaccount": "cd packages/server && node -r dotenv/config bin/createaccount.js"
+  }
+}

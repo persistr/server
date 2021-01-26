@@ -1,0 +1,17 @@
+{
+  "name": "@persistr/server-debug",
+  "version": "4.0.0",
+  "description": "Persistr Server debugging support",
+  "main": "./src",
+  "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/persistr/server.git",
+    "directory": "packages/server-debug"
+  },
+  "dependencies": {
+    "debug": "^4.1.1"
+  }
+}

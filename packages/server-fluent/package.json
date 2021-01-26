@@ -1,0 +1,18 @@
+{
+  "name": "@persistr/server-fluent",
+  "version": "4.0.0",
+  "description": "Persistr Server fluent SDK",
+  "main": "./src",
+  "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/persistr/server.git",
+    "directory": "packages/server-fluent"
+  },
+  "dependencies": {
+    "async-queue": "^0.1.0",
+    "luxon": "^1.15.0"
+  }
+}

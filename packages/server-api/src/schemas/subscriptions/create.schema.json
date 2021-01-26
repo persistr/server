@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "properties": {
+        "adapter": {
+            "description": "Subscription adapter",
+            "type": "object"
+        },
+        "filter": {
+            "description": "Subscription filter",
+            "type": "object"
+        }
+    },
+    "required": [ "adapter", "filter" ]
+}

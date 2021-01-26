@@ -1,0 +1,63 @@
+{
+    "type": "object",
+    "properties": {
+        "valid": {
+            "description": "Token validity",
+            "const": true
+        },
+        "payload": {
+            "description": "Token payload",
+            "type": "object",
+            "properties": {
+                "iss": {
+                    "description": "Issuer",
+                    "const": "api.persistr.com"
+                },
+                "sub": {
+                    "description": "Email address",
+                    "type": "string",
+                    "format": "email"
+                },
+                "id": {
+                    "description": "Unique identifier",
+                    "type": "string",
+                    "format": "uuid"
+                },
+                "name": {
+                    "description": "Full name",
+                    "type": "string"
+                },
+                "own": {
+                    "description": "Array of space names",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "adm": {
+                    "description": "Array of space names",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mbr": {
+                    "description": "Array of space names",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "rdr": {
+                    "description": "Array of space names",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [ "iss", "sub", "id", "name" ]
+        }
+    },
+    "required": [ "payload", "valid" ]
+}

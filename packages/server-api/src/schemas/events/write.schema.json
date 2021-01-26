@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "properties": {
+        "data": {
+            "description": "Event data",
+            "type": "object"
+        },
+        "meta": {
+            "description": "Event metadata",
+            "type": "object"
+        }
+    },
+    "required": [ "data" ]
+}

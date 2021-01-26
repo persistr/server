@@ -1,0 +1,26 @@
+{
+    "type": "object",
+    "properties": {
+        "valid": {
+            "description": "Token validity",
+            "const": true
+        },
+        "payload": {
+            "description": "Token payload",
+            "type": "object",
+            "properties": {
+                "iss": {
+                    "description": "Issuer",
+                    "const": "api.persistr.com"
+                },
+                "user": {
+                    "description": "Unique identifier",
+                    "type": "string",
+                    "format": "uuid"
+                }
+            },
+            "required": [ "iss", "user" ]
+        }
+    },
+    "required": [ "payload", "valid" ]
+}
