@@ -36,10 +36,7 @@ function decode (auth, scheme = 'Bearer') {
               id: token.payload.id,
               email: token.payload.sub,
               name: token.payload.name,
-              own: token.payload.own || [],
-              adm: token.payload.adm || [],
-              mbr: token.payload.mbr || [],
-              rdr: token.payload.rdr || []
+              dbs: token.payload.dbs || []
             })
           }
           else if (scheme === 'Apikey') {
