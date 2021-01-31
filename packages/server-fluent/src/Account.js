@@ -30,6 +30,14 @@ class Account {
   db (name) {
     return new Database({ store: this.store, account: this, name })
   }
+
+  databases () {
+    return this.dbs()
+  }
+
+  database (name) {
+    return this.db(name)
+  }
 }
 
 module.exports = Account
