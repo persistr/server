@@ -32,6 +32,28 @@ async function findNamespaceID (dbID, name) {
   return domainID
 }
 
+async function findOrCreateNamespaceID (identity, db, dbID, name) {
+  let results = await sql.read('SELECT id FROM Namespaces WHERE db = ? AND `name` = ?', [ uuid2hex(dbID), name ])
+  if (results && results[0] && results[0].id) {
+    const nsID = hex2uuid(results[0].id)
+    return nsID
+  }
+
+  if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
+
+  const nsID = uuidv4()
+  let [error] = await to(sql.write('INSERT INTO Namespaces SET ?', {
+    db: uuid2hex(dbID),
+    id: uuid2hex(nsID),
+    name
+  }))
+
+  if (error && error.code === 'ER_DUP_ENTRY') throw new Errors.NamespaceTaken(name)
+  if (error) throw error
+
+  return nsID
+}
+
 async function findRoleID (role) {
   const roles = { owner: 1, admin: 2, member: 3, reader: 4 }
   const roleID = roles[role]
@@ -400,12 +422,16 @@ class Store extends EventEmitter {
     if (limit) options.limit = limit = Math.min(50, limit)
 
     const dbID = await findDatabaseID(db)
-    const domainID = await findNamespaceID(dbID, ns)
-
-    let conditions = 'WHERE db = ? AND ns = ?'
-    let params = [ uuid2hex(dbID), uuid2hex(domainID) ]
+    let conditions = 'WHERE db = ?'
+    let params = [ uuid2hex(dbID) ]
     options.dbID = uuid2hex(dbID)
-    options.domainID = uuid2hex(domainID)
+
+    if (ns) {
+      const domainID = await findNamespaceID(dbID, ns)
+      conditions += ' AND ns = ?'
+      params.push(uuid2hex(domainID))
+      options.domainID = uuid2hex(domainID)
+    }
 
     if (stream) {
       conditions += ' AND stream = ?'
@@ -682,13 +708,13 @@ LIMIT 50
     params.data = params.data || {}
 
     const dbID = await findDatabaseID(params.db)
-    const domainID = await findNamespaceID(dbID, params.ns)
+    const nsID = await findOrCreateNamespaceID(identity, params.db, dbID, params.ns)
 
     let [error] = await to(sql.write('INSERT INTO Events SET ?', {
       id: uuid2hex(params.id),
       ts: params.ts,
       db: uuid2hex(dbID),
-      ns: uuid2hex(domainID),
+      ns: uuid2hex(nsID),
       stream: uuid2hex(params.stream),
       meta: JSON.stringify(params.meta),
       data: JSON.stringify(params.data)
