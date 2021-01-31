@@ -182,7 +182,7 @@ class Store extends EventEmitter {
   }
 
   async cloneDatabase (identity, db, newDatabaseName, account) {
-    if (!identity.is.reader({ db })) throw new Errors.Forbidden('reader', db)
+    if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
 
     const dbID = await findDatabaseID(db)
 
@@ -221,7 +221,7 @@ class Store extends EventEmitter {
   }
 
   async destroyDatabase (identity, db, account) {
-    if (!identity.is.owner({ db })) throw new Errors.Forbidden('owner', db)
+    if (!identity.is.owner({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('owner', db)
     const dbID = await findDatabaseID(db)
     await Promise.all([
       sql.write('DELETE FROM Events WHERE db = ?', [ uuid2hex(dbID) ]),
@@ -233,14 +233,14 @@ class Store extends EventEmitter {
   }
 
   async renameDatabase (identity, db, newName, account) {
-    if (!identity.is.admin({ db })) throw new Errors.Forbidden('admin', db)
+    if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
     const dbID = await findDatabaseID(db)
     let results = await sql.write('UPDATE `Databases` SET `name` = ? WHERE id = ?', [ newName, uuid2hex(dbID) ])
     if (results && !results.affectedRows) throw new Errors.DatabaseNotFound(db)
   }
 
   async grantAccount (identity, db, role, email, accountID) {
-    if (!identity.is.admin({ db })) throw new Errors.Forbidden('admin', db)
+    if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
     const dbID = await findDatabaseID(db)
     const roleID = await findRoleID(role)
     const emailAccountID = await this.findAccountID (email)
@@ -253,7 +253,7 @@ class Store extends EventEmitter {
   }
 
   async revokeAccount (identity, db, email, accountID) {
-    if (!identity.is.admin({ db })) throw new Errors.Forbidden('admin', db)
+    if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
     const dbID = await findDatabaseID(db)
     const emailAccountID = await this.findAccountID (email)
     let [ error, results ] = await to(sql.write('DELETE FROM AccountDatabases WHERE idDB = ? AND idAccount = ?', [ uuid2hex(dbID), uuid2hex(emailAccountID) ]))
@@ -262,7 +262,7 @@ class Store extends EventEmitter {
   // Namespaces
 
   async listNamespaces (identity, db, callback) {
-    if (!identity.is.reader({ db })) throw new Errors.Forbidden('reader', db)
+    if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
     await sql.read('SELECT Namespaces.name AS `name` FROM Namespaces, `Databases` WHERE Namespaces.db = Databases.id AND Databases.name = ? ORDER BY Namespaces.name ASC', [ db ], {
       each: async row => {
         var ns = row.name
@@ -272,7 +272,7 @@ class Store extends EventEmitter {
   }
 
   async createNamespace (identity, name, db, account) {
-    if (!identity.is.admin({ db })) throw new Errors.Forbidden('admin', db)
+    if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
 
     const dbID = await findDatabaseID(db)
 
@@ -287,7 +287,7 @@ class Store extends EventEmitter {
   }
 
   async destroyNamespace (identity, name, db, account) {
-    if (!identity.is.admin({ db })) throw new Errors.Forbidden('admin', db)
+    if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
     const dbID = await findDatabaseID(db)
     const domainID = await findNamespaceID(dbID, name)
     await Promise.all([
@@ -298,7 +298,7 @@ class Store extends EventEmitter {
   }
 
   async truncateNamespace (identity, name, db, account) {
-    if (!identity.is.admin({ db })) throw new Errors.Forbidden('admin', db)
+    if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
     const dbID = await findDatabaseID(db)
     const domainID = await findNamespaceID(dbID, name)
     await Promise.all([
@@ -308,7 +308,7 @@ class Store extends EventEmitter {
   }
 
   async renameNamespace (identity, db, ns, name, account) {
-    if (!identity.is.admin({ db })) throw new Errors.Forbidden('admin', db)
+    if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
     const dbID = await findDatabaseID(db)
     let [error, results] = await to(sql.write('UPDATE Namespaces SET `name` = ? WHERE db = ? AND `name` = ?', [ name, uuid2hex(dbID), ns ]))
     if (!error && results && !results.affectedRows) throw new Errors.NamespaceNotFound(ns, db)
@@ -319,7 +319,7 @@ class Store extends EventEmitter {
   // Streams
 
   async listStreams (identity, db, ns, each) {
-    if (!identity.is.reader({ db })) throw new Errors.Forbidden('reader', db)
+    if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
     const dbID = await findDatabaseID(db)
     const domainID = await findNamespaceID(dbID, ns)
     await sql.read('SELECT Events.stream AS stream, MIN(Events.ts) AS first, MAX(Events.ts) AS latest, COUNT(*) AS count, annotation FROM Events LEFT JOIN Annotations ON Events.db = Annotations.db AND Events.ns = Annotations.ns AND Events.stream = Annotations.stream WHERE Events.db = ? AND Events.ns = ? AND Events.stream IN (SELECT DISTINCT stream FROM Events WHERE db = ? AND ns = ? ORDER BY stream ASC) GROUP BY Events.db, Events.ns, Events.stream', [ uuid2hex(dbID), uuid2hex(domainID), uuid2hex(dbID), uuid2hex(domainID) ], {
@@ -333,7 +333,7 @@ class Store extends EventEmitter {
   }
 
   async destroyStream (identity, db, ns, streamID, accountID) {
-    if (!identity.is.admin({ db })) throw new Errors.Forbidden('admin', db)
+    if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
 
     const dbID = await findDatabaseID(db)
     const domainID = await findNamespaceID(dbID, ns)
@@ -350,7 +350,7 @@ class Store extends EventEmitter {
   // annotations
 
   async readAnnotation (identity, db, ns, streamID, account) {
-    if (!identity.is.reader({ db })) throw new Errors.Forbidden('reader', db)
+    if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
 
     const dbID = await findDatabaseID(db)
     const domainID = await findNamespaceID(dbID, ns)
@@ -369,7 +369,7 @@ class Store extends EventEmitter {
   }
 
   async writeAnnotation (identity, db, ns, streamID, annotation, account) {
-    if (!identity.is.member({ db })) throw new Errors.Forbidden('member', db)
+    if (!identity.is.member({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('member', db)
 
     const dbID = await findDatabaseID(db)
     const domainID = await findNamespaceID(dbID, ns)
@@ -392,7 +392,7 @@ class Store extends EventEmitter {
   }
 
   async destroyAnnotation (identity, db, ns, streamID, account) {
-    if (!identity.is.member({ db })) throw new Errors.Forbidden('member', db)
+    if (!identity.is.member({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('member', db)
 
     const dbID = await findDatabaseID(db)
     const domainID = await findNamespaceID(dbID, ns)
@@ -409,7 +409,7 @@ class Store extends EventEmitter {
   // events
 
   async listEvents (identity, { db, ns, stream, types, from, to, after, until, limit, schema }, eachCallback, endCallback) {
-    if (!identity.is.reader({ db })) throw new Errors.Forbidden('reader', db)
+    if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
 
     let options = {}
 
@@ -691,7 +691,7 @@ LIMIT 50
   }
 
   async writeEvent (identity, params, accountID) {
-    if (!identity.is.member({ db: params.db })) throw new Errors.Forbidden('member', params.db)
+    if (!identity.is.member({ db: params.db })) throw new Errors.ForbiddenOrDatabaseNotFound('member', params.db)
 
     params.ts = new Date()
 
@@ -730,7 +730,7 @@ LIMIT 50
   }
 
   async readEvent (identity, db, ns, streamID, eventID, accountID) {
-    if (!identity.is.reader({ db })) throw new Errors.Forbidden('reader', db)
+    if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
 
     const dbID = await findDatabaseID(db)
     const domainID = await findNamespaceID(dbID, ns)
@@ -750,7 +750,7 @@ LIMIT 50
   }
 
   async destroyEvent (identity, db, ns, streamID, eventID, accountID) {
-    if (!identity.is.admin({ db })) throw new Errors.Forbidden('admin', db)
+    if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
 
     const dbID = await findDatabaseID(db)
     const domainID = await findNamespaceID(dbID, ns)
