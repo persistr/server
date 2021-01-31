@@ -10,7 +10,7 @@ class Account {
     this.id = account.id
     this.email = account.email
     this.name = account.name
-    this.dbs = account.dbs
+    this._dbs = account.dbs
     this.identity = identity
     this.store = store
   }
