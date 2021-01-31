@@ -1,3 +1,4 @@
+const Events = require('./Events')
 const Namespace = require('./Namespace')
 const Namespaces = require('./Namespaces')
 
@@ -14,6 +15,10 @@ class Database {
 
   ns (name) {
     return new Namespace({ store: this.store, db: this, name })
+  }
+
+  events (options) {
+    return new Events({ ...options, store: this.store, db: this })
   }
 
   async create () {

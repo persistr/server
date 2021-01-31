@@ -4,10 +4,11 @@ const { Duplex } = require('stream')
 const Event = require('./Event')
 
 class Events extends Duplex {
-  constructor ({ store, ns, stream, types, from, after, to, until, limit, schema }) {
+  constructor ({ store, db, ns, stream, types, from, after, to, until, limit, schema }) {
     super({ objectMode: true })
 
     this.store = store
+    this._db = db
     this._ns = ns
     this.stream = stream
     this.types = types
@@ -36,11 +37,11 @@ class Events extends Duplex {
   }
 
   get db() {
-    return this.ns.db
+    return this._db || this.ns.db
   }
 
   get ns() {
-    return this._ns || this.stream.ns
+    return this._ns || this.stream?.ns
   }
 
   _write (params, encoding, callback) {
@@ -100,7 +101,7 @@ class Events extends Duplex {
     // Read historical events from the stream.
     if (this.after !== 'past-events') {
       let streamID = this.stream ? this.stream.id : undefined
-      let results = await this.store.listEvents(this.account.identity, { db: this.db.name, ns: this.ns.name, stream: streamID, types: this.types, from: this.from, after: this.after, to: this.to, until: this.until, limit: this.limit })
+      let results = await this.store.listEvents(this.account.identity, { db: this.db.name, ns: this.ns?.name, stream: streamID, types: this.types, from: this.from, after: this.after, to: this.to, until: this.until, limit: this.limit })
         .catch(err => this.emit('error', err))
       if (results && results.data) {
         this.push(results)
