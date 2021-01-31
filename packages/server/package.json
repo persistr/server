@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Persistr Server",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
@@ -12,9 +12,9 @@
     "directory": "packages/server"
   },
   "dependencies": {
-    "@persistr/server-api": "^4.0.0",
+    "@persistr/server-api": "^4.1.0",
     "@persistr/server-errors": "^4.0.0",
-    "@persistr/server-store": "^4.0.0",
+    "@persistr/server-store": "^4.1.0",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
