@@ -321,15 +321,27 @@ class Store extends EventEmitter {
   async listStreams (identity, db, ns, each) {
     if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
     const dbID = await findDatabaseID(db)
-    const domainID = await findNamespaceID(dbID, ns)
-    await sql.read('SELECT Events.stream AS stream, MIN(Events.ts) AS first, MAX(Events.ts) AS latest, COUNT(*) AS count, annotation FROM Events LEFT JOIN Annotations ON Events.db = Annotations.db AND Events.ns = Annotations.ns AND Events.stream = Annotations.stream WHERE Events.db = ? AND Events.ns = ? AND Events.stream IN (SELECT DISTINCT stream FROM Events WHERE db = ? AND ns = ? ORDER BY stream ASC) GROUP BY Events.db, Events.ns, Events.stream', [ uuid2hex(dbID), uuid2hex(domainID), uuid2hex(dbID), uuid2hex(domainID) ], {
-      each: row => {
-        let annotation = JSON.parse(row.annotation)
-        let stream = { id: hex2uuid(row.stream), created: row.first, modified: row.latest, size: row.count, annotation }
-        if (annotation && annotation.type) stream.type = annotation.type
-        each(stream)
-      }
-    })
+    if (ns) {
+      const domainID = await findNamespaceID(dbID, ns)
+      await sql.read('SELECT Events.stream AS stream, MIN(Events.ts) AS first, MAX(Events.ts) AS latest, COUNT(*) AS count, annotation FROM Events LEFT JOIN Annotations ON Events.db = Annotations.db AND Events.ns = Annotations.ns AND Events.stream = Annotations.stream WHERE Events.db = ? AND Events.ns = ? AND Events.stream IN (SELECT DISTINCT stream FROM Events WHERE db = ? AND ns = ? ORDER BY stream ASC) GROUP BY Events.db, Events.ns, Events.stream', [ uuid2hex(dbID), uuid2hex(domainID), uuid2hex(dbID), uuid2hex(domainID) ], {
+        each: row => {
+          let annotation = JSON.parse(row.annotation)
+          let stream = { id: hex2uuid(row.stream), ns, created: row.first, modified: row.latest, size: row.count, annotation }
+          if (annotation && annotation.type) stream.type = annotation.type
+          each(stream)
+        }
+      })
+    }
+    else {
+      await sql.read('SELECT Events.stream AS stream, Namespaces.name AS ns, MIN(Events.ts) AS first, MAX(Events.ts) AS latest, COUNT(*) AS count, annotation FROM Namespaces, Events LEFT JOIN Annotations ON Events.db = Annotations.db AND Events.ns = Annotations.ns AND Events.stream = Annotations.stream WHERE Events.ns = Namespaces.id AND Events.db = ? AND Events.stream IN (SELECT DISTINCT stream FROM Events WHERE db = ? ORDER BY stream ASC) GROUP BY Events.db, Events.ns, Events.stream', [ uuid2hex(dbID), uuid2hex(dbID) ], {
+        each: row => {
+          let annotation = JSON.parse(row.annotation)
+          let stream = { id: hex2uuid(row.stream), ns: row.ns, created: row.first, modified: row.latest, size: row.count, annotation }
+          if (annotation && annotation.type) stream.type = annotation.type
+          each(stream)
+        }
+      })
+    }
   }
 
   async destroyStream (identity, db, ns, streamID, accountID) {
