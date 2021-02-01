@@ -11,7 +11,7 @@ class Events extends Duplex {
     this._db = db
     this._ns = ns
     this.stream = stream
-    this.types = types
+    this.types = Array.isArray(types) ? types : (types ? [ types ] : undefined)
     this.from = from
     this.after = after
     this.to = to
@@ -22,12 +22,11 @@ class Events extends Duplex {
     this.shouldRead = true
 
     const listener = function({ account, event }) {
-      if (this.stream && this.db.name === event.meta.db && this.ns.name === event.meta.ns && this.stream.id === event.meta.stream) {
-        this.push({ data: [ event ]})
-      }
-      else if (!this.stream && this.db.name === event.meta.db && this.ns.name === event.meta.ns) {
-        this.push({ data: [ event ]})
-      }
+      if (this.db.name !== event.meta.db) return
+      if (this.ns && this.ns.name !== event.meta.ns) return
+      if (this.stream && this.stream.id !== event.meta.stream) return
+      if (this.types && !this.types.includes(event.meta.type)) return
+      this.push({ data: [ event ]})
     }
     this.listener = listener.bind(this)
   }
