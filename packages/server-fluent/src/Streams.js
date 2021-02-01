@@ -1,13 +1,14 @@
 const Stream = require('./Stream')
 
 class Streams {
-  constructor ({ store, ns }) {
+  constructor ({ store, db, ns }) {
     this.store = store
+    this._db = db
     this.ns = ns
   }
 
   get db() {
-    return this.ns.db
+    return this._db || this.ns.db
   }
 
   get account() {
@@ -15,7 +16,7 @@ class Streams {
   }
 
   async each (callback) {
-    return this.store.listStreams(this.account.identity, this.db.name, this.ns.name, callback)
+    return this.store.listStreams(this.account.identity, this.db.name, this.ns?.name, callback)
   }
 }
 

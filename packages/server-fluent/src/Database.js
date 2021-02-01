@@ -1,6 +1,7 @@
 const Events = require('./Events')
 const Namespace = require('./Namespace')
 const Namespaces = require('./Namespaces')
+const Streams = require('./Streams')
 
 class Database {
   constructor ({ store, account, name }) {
@@ -15,6 +16,10 @@ class Database {
 
   ns (name) {
     return new Namespace({ store: this.store, db: this, name })
+  }
+
+  streams () {
+    return new Streams({ store: this.store, db: this })
   }
 
   events (options) {
