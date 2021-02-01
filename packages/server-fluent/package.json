@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server-fluent",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Persistr Server fluent SDK",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
