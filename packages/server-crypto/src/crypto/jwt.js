@@ -34,7 +34,7 @@ function decode (auth, scheme = 'Bearer') {
             if (!Schemas.is(token).valid('auth/bearer')) { reject(new Errors.InvalidBearerToken({ token })); return }
             resolve({
               id: token.payload.id,
-              email: token.payload.sub,
+              username: token.payload.sub,
               name: token.payload.name,
               dbs: token.payload.dbs || []
             })

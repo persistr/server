@@ -15,8 +15,8 @@ class Credentials {
     return new Credentials(store, summary, auth, 'Apikey')
   }
 
-  static async fromLogin(store, email, password) {
-    let summary = await store.findAccount(email, password)
+  static async fromLogin(store, username, password) {
+    let summary = await store.findAccount(username, password)
     let token = await tokenize(summary)
     return new Credentials(store, summary, token, 'Basic')
   }
@@ -53,7 +53,7 @@ class Credentials {
 async function tokenize(summary) {
   return await jwt.encode({
     iss: 'api.persistr.com',
-    sub: summary.email,
+    sub: summary.username,
     id: summary.id,
     name: summary.name,
     dbs: summary.dbs || []

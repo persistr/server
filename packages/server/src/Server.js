@@ -20,11 +20,11 @@ class Server {
   }
 
   async credentials (arg) {
-    if (typeof arg === 'object' && arg.email && arg.name && arg.password) {
-      return await Credentials.fromSignup(this.store, arg.email, arg.name, arg.password)
+    if (typeof arg === 'object' && arg.username && arg.name && arg.password) {
+      return await Credentials.fromSignup(this.store, arg.username, arg.name, arg.password)
     }
-    else if (typeof arg === 'object' && arg.email && arg.password) {
-      return await Credentials.fromLogin(this.store, arg.email, arg.password)
+    else if (typeof arg === 'object' && arg.username && arg.password) {
+      return await Credentials.fromLogin(this.store, arg.username, arg.password)
     }
     else if (typeof arg === 'object' && arg.key) {
       return await Credentials.fromApiKey(this.store, arg.key)
@@ -37,8 +37,8 @@ class Server {
     }
     else if (typeof arg === 'object' && arg.headers.authorization && arg.headers.authorization.trim().startsWith('Basic ')) {
       const [ scheme, token ] = arg.headers.authorization.split(' ')
-      const [ email, password ] = Buffer.from(token, 'base64').toString('utf8').split(':')
-      return await Credentials.fromLogin(this.store, email, password)
+      const [ username, password ] = Buffer.from(token, 'base64').toString('utf8').split(':')
+      return await Credentials.fromLogin(this.store, username, password)
     }
     throw new Errors.Unauthenticated()
   }

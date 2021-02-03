@@ -12,6 +12,7 @@
     "directory": "packages/server-fluent"
   },
   "dependencies": {
+    "@persistr/server-errors": "^4.0.0",
     "async-queue": "^0.1.0",
     "luxon": "^1.15.0"
   }

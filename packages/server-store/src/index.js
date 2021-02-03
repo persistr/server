@@ -78,27 +78,27 @@ class Store extends EventEmitter {
 
   // Accounts
 
-  async findAccountID (email) {
-    let results = await sql.read('SELECT `id` FROM Accounts WHERE email = ? AND isActive = 1', [ email ])
+  async findAccountID (username) {
+    let results = await sql.read('SELECT `id` FROM Accounts WHERE username = ? AND isActive = 1', [ username ])
     if (!results || !results.length) throw new Errors.AccountNotFound()
     let accountID = hex2uuid(results[0].id)
     return accountID
   }
 
   async findAccountByID (id) {
-    let results = await sql.read('SELECT `name`, `email`, `password` FROM Accounts WHERE id = ? AND isActive = 1', [ uuid2hex(id) ])
+    let results = await sql.read('SELECT `name`, `username`, `password` FROM Accounts WHERE id = ? AND isActive = 1', [ uuid2hex(id) ])
     if (!results || !results.length) throw new Errors.AccountNotFound()
     let dbs = await sql.read('SELECT Databases.name AS `name`, AccountDatabases.type AS `type` FROM Accounts, `Databases`, AccountDatabases WHERE Accounts.id = ? AND Databases.id = AccountDatabases.idDB AND Accounts.id = AccountDatabases.idAccount ORDER BY Databases.name', [ uuid2hex(id) ])
     return {
       id,
       name: results[0].name,
-      email: results[0].email,
+      username: results[0].username,
       dbs: dbs.map(db => ({ name: db.name, role: kRoles[db.type] }))
     }
   }
 
-  async findAccount (email, password) {
-    let results = await sql.read('SELECT `id`, `name`, `email`, `password` FROM Accounts WHERE email = ? AND isActive = 1', [ email ])
+  async findAccount (username, password) {
+    let results = await sql.read('SELECT `id`, `name`, `username`, `password` FROM Accounts WHERE username = ? AND isActive = 1', [ username ])
     if (!results || !results.length) throw new Errors.AccountNotFound()
 
     let accountName = results[0].name
@@ -112,33 +112,33 @@ class Store extends EventEmitter {
     return {
       id: accountID,
       name: accountName,
-      email,
+      username,
       dbs: dbs.map(db => ({ name: db.name, role: kRoles[db.type] }))
     }
   }
 
   async findAccountByKey (accountID, key) {
-    let results = await sql.read('SELECT `name`, `email` FROM Accounts WHERE id = ? AND `key` = ? AND isActive = 1', [ uuid2hex(accountID), key ])
+    let results = await sql.read('SELECT `name`, `username` FROM Accounts WHERE id = ? AND `key` = ? AND isActive = 1', [ uuid2hex(accountID), key ])
     if (!results || !results.length) throw new Errors.AccountNotFound()
     let dbs = await sql.read('SELECT Databases.name AS `name`, AccountDatabases.type AS `type` FROM Accounts, `Databases`, AccountDatabases WHERE Accounts.id = ? AND Databases.id = AccountDatabases.idDB AND Accounts.id = AccountDatabases.idAccount ORDER BY Databases.name', [ uuid2hex(accountID) ])
     return {
       id: accountID,
       name: results[0].name,
-      email: results[0].email,
+      username: results[0].username,
       dbs: dbs.map(db => ({ name: db.name, role: kRoles[db.type] }))
     }
   }
 
-  async createAccount (email, name, password) {
+  async createAccount (username, name, password) {
     const accountID = uuidv4()
     const hashedPassword = await passwords.hash(password)
     const key = await keys.generate(accountID)
-    let [error] = await to(sql.write('INSERT INTO Accounts SET ?', { id: uuid2hex(accountID), email, name, password: hashedPassword, key }))
+    let [error] = await to(sql.write('INSERT INTO Accounts SET ?', { id: uuid2hex(accountID), username, name, password: hashedPassword, key }))
 
-    if (error && error.message.includes('ER_DUP_ENTRY')) throw new Errors.EmailTaken(email)
+    if (error && error.message.includes('ER_DUP_ENTRY')) throw new Errors.UsernameTaken(username)
     if (error) throw error
 
-    return { id: accountID, name, email, dbs: [], key }
+    return { id: accountID, name, username, dbs: [], key }
   }
 
   async destroyAccount (identity, accountID) {
@@ -239,24 +239,24 @@ class Store extends EventEmitter {
     if (results && !results.affectedRows) throw new Errors.DatabaseNotFound(db)
   }
 
-  async grantAccount (identity, db, role, email, accountID) {
+  async grantAccount (identity, db, role, username, accountID) {
     if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
     const dbID = await findDatabaseID(db)
     const roleID = await findRoleID(role)
-    const emailAccountID = await this.findAccountID (email)
+    const usernameAccountID = await this.findAccountID (username)
     let [ error, results ] = await to(sql.write('INSERT INTO AccountDatabases SET ? ON DUPLICATE KEY UPDATE type = ?', [{
       idDB: uuid2hex(dbID),
-      idAccount: uuid2hex(emailAccountID),
+      idAccount: uuid2hex(usernameAccountID),
       type: roleID
     }, roleID]))
     if (error) throw error
   }
 
-  async revokeAccount (identity, db, email, accountID) {
+  async revokeAccount (identity, db, username, accountID) {
     if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
     const dbID = await findDatabaseID(db)
-    const emailAccountID = await this.findAccountID (email)
-    let [ error, results ] = await to(sql.write('DELETE FROM AccountDatabases WHERE idDB = ? AND idAccount = ?', [ uuid2hex(dbID), uuid2hex(emailAccountID) ]))
+    const usernameAccountID = await this.findAccountID (username)
+    let [ error, results ] = await to(sql.write('DELETE FROM AccountDatabases WHERE idDB = ? AND idAccount = ?', [ uuid2hex(dbID), uuid2hex(usernameAccountID) ]))
   }
 
   // Namespaces

@@ -22,14 +22,14 @@ DROP TABLE IF EXISTS `Accounts`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Accounts` (
   `id` binary(16) NOT NULL,
-  `email` varchar(321) NOT NULL,
+  `username` varchar(321) NOT NULL,
   `name` text NOT NULL,
   `password` varchar(300) NOT NULL,
   `key` varchar(500) NOT NULL,
   `isActive` tinyint(4) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  UNIQUE KEY `email_UNIQUE` (`email`)
+  UNIQUE KEY `username_UNIQUE` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

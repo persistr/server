@@ -31,11 +31,6 @@ module.exports = {
     else if (req.header('Accept') === 'text/event-stream' || (!req.header('Accept') && (req.query.until || req.query.to))) {
       // Stream events via SSE. Can be done for both historical and live events.
 
-      req.on('close', function() {
-        // Stop streaming events.
-        events.push(null)
-      })
-
       // Send SSE headers.
       res.set({
         'Cache-Control': 'no-cache',
@@ -44,8 +39,8 @@ module.exports = {
       })
       res.flushHeaders()
 
-      // Direct the client to retry every 10 seconds if connectivity is lost.
-      res.write('retry: 10000\n\n')
+      // Direct the client to retry after 1 second if connectivity is lost.
+      res.write('retry: 1000\n\n')
 
       const db = Account.from(req.credentials).db(req.params.db)
       const types = req.query.types ? `${decodeURIComponent(req.query.types)}`.split(',') : undefined
@@ -63,12 +58,18 @@ module.exports = {
         limit: req.query.limit
       })
 
+      req.on('close', function() {
+        // Stop streaming events.
+        events.push(null)
+      })
+
       await events.each(event => {
         // Stream the event to the client.
         res.write(`data: ${JSON.stringify(event)}\n\n`)
       })
 
-      res.end()
+      // Send end-of-stream to the client. Client is expected to close connection.
+      res.write(`event: error\ndata: \n\n`)
     }
   }
 }

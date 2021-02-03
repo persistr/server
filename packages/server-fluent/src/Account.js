@@ -1,14 +1,16 @@
 const Database = require('./Database')
 const Databases = require('./Databases')
+const Errors = require('./errors')
 
 class Account {
   static from(credentials) {
+    if (!credentials) throw new Errors.InvalidCredentials()
     return new Account({ account: credentials.summary, store: credentials.store, identity: credentials.identity })
   }
 
   constructor ({ account, identity, store }) {
     this.id = account.id
-    this.email = account.email
+    this.username = account.username
     this.name = account.name
     this._dbs = account.dbs
     this.identity = identity
