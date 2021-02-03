@@ -33,10 +33,12 @@ Errors.handle = function (callback) {
       await callback(req, res, next)
     } catch (error) {
       if (res.headersSent && res.get('content-type').includes('text/event-stream')) {
+        console.log('ERROR:', error.message)
         res.write(`event: error\ndata: ${JSON.stringify({ message: error.message, name: error.name, status: error.status })}\n\n`)
       }
       else {
         if (error instanceof Errors.PersistrError) {
+          console.log('ERROR:', error.message)
           res.status(error.status).json({ error: error.message })
         } else {
           console.log(error)

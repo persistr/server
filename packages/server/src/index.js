@@ -49,6 +49,7 @@ async function main () {
       if (req.credentials.scheme === 'Basic') await req.credentials.issue(res)
     }
     catch (error) {
+      console.log('ERROR:', error.message)
     }
     next()
   })
