@@ -438,8 +438,9 @@ class Store extends EventEmitter {
     let params = [ uuid2hex(dbID) ]
     options.dbID = uuid2hex(dbID)
 
-    if (ns) {
-      const domainID = await findNamespaceID(dbID, ns)
+    let domainID
+    if (ns !== undefined) {
+      domainID = await findNamespaceID(dbID, ns)
       conditions += ' AND ns = ?'
       params.push(uuid2hex(domainID))
       options.domainID = uuid2hex(domainID)
