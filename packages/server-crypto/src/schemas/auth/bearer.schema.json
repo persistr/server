@@ -14,9 +14,8 @@
                     "const": "api.persistr.com"
                 },
                 "sub": {
-                    "description": "Email address",
-                    "type": "string",
-                    "format": "email"
+                    "description": "Username",
+                    "type": "string"
                 },
                 "id": {
                     "description": "Unique identifier",

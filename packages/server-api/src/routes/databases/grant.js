@@ -3,8 +3,8 @@ module.exports = {
   method: 'post',
   path: '/db/:db/grant',
   handler: async (req, res) => {
-    let { role, email } = req.query
-    await Account.from(req.credentials).db(req.params.db).grant({ role, email })
+    let { role, username } = req.query
+    await Account.from(req.credentials).db(req.params.db).grant({ role, username })
     res.status(200).send()
   }
 }

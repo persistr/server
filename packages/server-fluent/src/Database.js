@@ -42,12 +42,12 @@ class Database {
     return this.store.renameDatabase(this.account.identity, this.name, name, this.account.id)
   }
 
-  async grant({ role, email }) {
-    return this.store.grantAccount(this.account.identity, this.name, role, email, this.account.id)
+  async grant({ role, username }) {
+    return this.store.grantAccount(this.account.identity, this.name, role, username, this.account.id)
   }
 
-  async revoke({ email }) {
-    return this.store.revokeAccount(this.account.identity, this.name, email, this.account.id)
+  async revoke({ username }) {
+    return this.store.revokeAccount(this.account.identity, this.name, username, this.account.id)
   }
 }
 
