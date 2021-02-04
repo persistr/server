@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server-schemas",
-  "version": "4.0.0",
+  "version": "4.3.0",
   "description": "Persistr Server schema validation support",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
@@ -12,7 +12,7 @@
     "directory": "packages/server-schemas"
   },
   "dependencies": {
-    "@persistr/server-errors": "^4.0.0",
+    "@persistr/server-errors": "^4.3.0",
     "ajv": "^6.10.0"
   }
 }

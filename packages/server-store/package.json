@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server-store",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "Persistr Server backing data store",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
@@ -12,10 +12,10 @@
     "directory": "packages/server-store"
   },
   "dependencies": {
-    "@persistr/server-crypto": "^4.1.0",
+    "@persistr/server-crypto": "^4.3.0",
     "@persistr/server-debug": "^4.0.0",
-    "@persistr/server-errors": "^4.0.0",
-    "@persistr/server-schemas": "^4.0.0",
+    "@persistr/server-errors": "^4.3.0",
+    "@persistr/server-schemas": "^4.3.0",
     "luxon": "^1.3.2",
     "mysql": "^2.18.0",
     "serialize-javascript": "^1.5.0",
