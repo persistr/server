@@ -17,7 +17,7 @@
     "@persistr/server-fluent": "^4.3.2",
     "@persistr/server-schemas": "^4.3.2",
     "streaming-json-stringify": "^3.1.0",
-    "uuid": "^3.3.2"
+    "uuid": "^8.3.2"
   },
   "publishConfig": {
     "access": "public"
