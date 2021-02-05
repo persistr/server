@@ -11,6 +11,7 @@
     "directory": "packages/server-store"
   },
   "dependencies": {
+    "@persistr/server-config": "^4.3.4",
     "@persistr/server-crypto": "^4.3.6",
     "@persistr/server-debug": "^4.3.4",
     "@persistr/server-errors": "^4.3.4",

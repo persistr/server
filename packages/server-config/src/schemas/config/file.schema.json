@@ -1,0 +1,18 @@
+{
+    "type": "object",
+    "properties": {
+        "secret": {
+            "description": "Server secret",
+            "type": "string"
+        },
+        "port": {
+            "description": "Server port",
+            "type": "integer"
+        },
+        "mysql": {
+            "description": "MySQL connection string",
+            "type": "string"
+        }
+    },
+    "required": [ "secret", "mysql" ]
+}

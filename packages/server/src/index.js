@@ -5,11 +5,29 @@ const { Server } = require('./Server')
 const bodyParser = require('body-parser')
 const compression = require('compression')
 const cors = require('cors')
+const { config, configFile, reload } = require('@persistr/server-config')
 const Errors = require('@persistr/server-errors')
 const express = require('express')
 const https = require('express-https-middleware')
+const yaml = require('js-yaml')
+const fs = require('fs')
+const prompts = require('prompts')
+const passgen = require('passgen')
 
 async function main () {
+  // Display server name and version.
+  const server = new Server()
+  console.log(server.name)
+
+  // Configure server if configuration file doesn't exist.
+  if (!fs.existsSync(configFile)) {
+    const abort = await configure(configFile)
+    if (abort) {
+      console.log('Configuration not completed. Rerun to complete')
+      return
+    }
+  }
+
   // Remove built-in Express headers that we don't want.
   const app = express()
   app.disable('x-powered-by')
@@ -34,7 +52,6 @@ async function main () {
   router.use(https.redirect)
 
   // Start the Persistr server.
-  let server = new Server()
   try {
     await server.start()
   }
@@ -77,12 +94,28 @@ async function main () {
   })
 
   // Run HTTP server.
-  const port = process.env.PORT || 3000
-  app.listen(port, () => {
-    console.log(`${server.name} running on port ${port}`)
+  app.listen(config.port, () => {
+    console.log(`Running on port ${config.port}`)
   })
 }
 
+async function configure (configFile) {
+  const { begin } = await prompts({ type: 'confirm', name: 'begin', message: 'Configure?', initial: true })
+  if (!begin) return true
+
+  const { mysql } = await prompts({ type: 'text', name: 'mysql', message: 'MySQL connection string?' })
+  if (!mysql) return true
+
+  const { port } = await prompts({ type: 'number', name: 'port', message: 'Port?', initial: 3010, min: 1 })
+  if (!port) return true
+
+  console.log(`Writing: ${configFile} ...`)
+  fs.appendFileSync(configFile, yaml.dump({ secret: passgen.create(25), port, mysql }))
+  console.log('done')
+
+  reload(configFile)
+}
+
 // Run server and catch any errors.
-async function run(f) { try { await f() } catch (error) { console.log(error.message) }}
+async function run(f) { try { await f() } catch (error) { console.log(error); console.log(error.message) }}
 run(main)

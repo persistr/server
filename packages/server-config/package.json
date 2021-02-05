@@ -1,0 +1,22 @@
+{
+  "name": "@persistr/server-config",
+  "version": "4.3.4",
+  "description": "Persistr Server configuration support",
+  "main": "./src",
+  "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/persistr/server.git",
+    "directory": "packages/server-config"
+  },
+  "dependencies": {
+    "@persistr/server-errors": "^4.3.4",
+    "@persistr/server-schemas": "^4.3.6",
+    "connection-string-parser": "^1.0.3",
+    "js-yaml": "^4.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

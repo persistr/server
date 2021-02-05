@@ -1,15 +1,13 @@
 var mysql = require('mysql')
+const { config } = require('@persistr/server-config')
 
-const writeLimit = process.env.MYSQL_WRITE_CONNECTIONS
+let writeLimit
 let writeSSL = {}
-if (process.env.MYSQL_WRITE_SSL) writeSSL.ssl = process.env.MYSQL_WRITE_SSL
-var writePool
+let writePool
 
-const readLimit = process.env.MYSQL_READ_CONNECTIONS
+let readLimit
 let readSSL = {}
-if (process.env.MYSQL_READ_SSL) readSSL.ssl = process.env.MYSQL_READ_SSL
-var hosts = process.env.MYSQL_READ_HOST.split(';')
-var readPool
+let readPool
 
 function keepAlive () {
   for (let i = 0; i < writeLimit; i++) {
@@ -98,13 +96,23 @@ module.exports = {
   begin: function() {
     if (writePool || readPool || keepAliveTimer) return
 
+    writeLimit = config.mysql.write.connections
+    writeSSL = {}
+    if (config.mysql.write.ssl) writeSSL.ssl = config.mysql.write.ssl
+
+    readLimit = config.mysql.read.connections
+    readSSL = {}
+    if (config.mysql.read.ssl) readSSL.ssl = config.mysql.read.ssl
+
+    const hosts = config.mysql.read.host.split(';')
+
     writePool = mysql.createPool({
       connectionLimit: writeLimit,
-      host: process.env.MYSQL_WRITE_HOST,
-      port: process.env.MYSQL_WRITE_PORT,
-      user: process.env.MYSQL_WRITE_USER,
-      password: process.env.MYSQL_WRITE_PASSWORD,
-      database: process.env.MYSQL_WRITE_DATABASE,
+      host: config.mysql.write.host,
+      port: config.mysql.write.port,
+      user: config.mysql.write.user,
+      password: config.mysql.write.password,
+      database: config.mysql.write.database,
       charset: 'utf8mb4',
       supportBigNumbers: true,
       multipleStatements: false,
@@ -116,10 +124,10 @@ module.exports = {
       readPool.add({
         connectionLimit: readLimit,
         host,
-        port: process.env.MYSQL_READ_PORT,
-        user: process.env.MYSQL_READ_USER,
-        password: process.env.MYSQL_READ_PASSWORD,
-        database: process.env.MYSQL_READ_DATABASE,
+        port: config.mysql.read.port,
+        user: config.mysql.read.user,
+        password: config.mysql.read.password,
+        database: config.mysql.read.database,
         charset: 'utf8mb4',
         supportBigNumbers: true,
         multipleStatements: false,
