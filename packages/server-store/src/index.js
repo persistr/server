@@ -4,7 +4,7 @@ const EventEmitter = require('events')
 const { keys, passwords } = require('@persistr/server-crypto')
 const sql = require('./util/sql')
 const uuidParse = require('uuid-parse')
-const uuidv4 = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 const wildcards = require('wildcards-to-mysql')
 
 const kRoles = { 1: 'owner', 2: 'admin', 3: 'member', 4: 'reader' }

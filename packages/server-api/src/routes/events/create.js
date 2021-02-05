@@ -1,5 +1,5 @@
 const { Account } = require('@persistr/server-fluent')
-const uuidv4 = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 module.exports = {
   method: 'post',
   path: '/events',
