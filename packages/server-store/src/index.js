@@ -3,12 +3,17 @@ const Errors = require('./errors')
 const EventEmitter = require('events')
 const { keys, passwords } = require('@persistr/server-crypto')
 const sql = require('./util/sql')
-const { to } = require('simple-promise-to-async')
 const uuidParse = require('uuid-parse')
 const uuidv4 = require('uuid/v4')
 const wildcards = require('wildcards-to-mysql')
 
 const kRoles = { 1: 'owner', 2: 'admin', 3: 'member', 4: 'reader' }
+
+function to (promise) {
+  return promise
+    .then(data => [null, data])
+    .catch(err => [err])
+}
 
 function uuid2hex (uuid) {
   return Buffer.from(uuidParse.parse(uuid))
