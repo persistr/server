@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Dependencies.
 const { Server } = require('./Server')
 const bodyParser = require('body-parser')
