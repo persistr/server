@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server-api",
-  "version": "4.3.4",
+  "version": "4.3.5",
   "description": "Persistr Server API",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
@@ -11,11 +11,11 @@
     "directory": "packages/server-api"
   },
   "dependencies": {
-    "@persistr/server-crypto": "^4.3.4",
+    "@persistr/server-crypto": "^4.3.5",
     "@persistr/server-debug": "^4.3.4",
     "@persistr/server-errors": "^4.3.4",
-    "@persistr/server-fluent": "^4.3.4",
-    "@persistr/server-schemas": "^4.3.4",
+    "@persistr/server-fluent": "^4.3.5",
+    "@persistr/server-schemas": "^4.3.5",
     "streaming-json-stringify": "^3.1.0",
     "uuid": "^8.3.2"
   },
