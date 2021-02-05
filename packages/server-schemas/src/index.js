@@ -1,4 +1,4 @@
-var Ajv = require('ajv')
+var Ajv = require('ajv').default
 const Errors = require('@persistr/server-errors')
 const fs = require('fs')
 const path = require('path')
