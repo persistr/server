@@ -5,7 +5,9 @@
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
   "license": "MIT",
-  "private": true,
+  "bin": {
+    "persistr-server": "./src/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/persistr/server.git",
