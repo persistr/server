@@ -1,9 +1,11 @@
-var Ajv = require('ajv').default
+const Ajv = require('ajv').default
+const addFormats = require('ajv-formats')
 const Errors = require('@persistr/server-errors')
 const fs = require('fs')
 const path = require('path')
 
-var validator = new Ajv()
+const validator = new Ajv({ strict: true })
+addFormats(validator)
 
 var Schemas = {}
 

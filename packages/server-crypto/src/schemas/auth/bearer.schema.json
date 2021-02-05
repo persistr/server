@@ -1,6 +1,10 @@
 {
     "type": "object",
     "properties": {
+        "type": {
+            "description": "Token type",
+            "const": "JWE"
+        },
         "valid": {
             "description": "Token validity",
             "const": true
@@ -26,37 +30,30 @@
                     "description": "Full name",
                     "type": "string"
                 },
-                "own": {
-                    "description": "Array of space names",
+                "dbs": {
+                    "description": "Array of database names",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "description": "Database name",
+                                "type": "string"
+                            },
+                            "role": {
+                                "description": "Role",
+                                "type": "string"
+                            }
+                        }
                     }
                 },
-                "adm": {
-                    "description": "Array of space names",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "mbr": {
-                    "description": "Array of space names",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "rdr": {
-                    "description": "Array of space names",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "iat": {
+                    "description": "Timestamp",
+                    "type": "integer"
                 }
             },
             "required": [ "iss", "sub", "id", "name" ]
         }
     },
-    "required": [ "payload", "valid" ]
+    "required": [ "payload", "valid", "type" ]
 }

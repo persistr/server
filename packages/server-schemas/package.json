@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@persistr/server-errors": "^4.3.4",
-    "ajv": "^7.0.4"
+    "ajv": "^7.0.4",
+    "ajv-formats": "^1.5.1"
   },
   "publishConfig": {
     "access": "public"
