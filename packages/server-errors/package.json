@@ -9,5 +9,9 @@
     "type": "git",
     "url": "https://github.com/persistr/server.git",
     "directory": "packages/server-errors"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "24fd677eacfea47bee7784302f0353b4c5c4144b"
 }

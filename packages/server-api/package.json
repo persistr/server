@@ -18,5 +18,9 @@
     "@persistr/server-schemas": "^4.3.1",
     "streaming-json-stringify": "^3.1.0",
     "uuid": "^3.3.2"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "24fd677eacfea47bee7784302f0353b4c5c4144b"
 }

@@ -22,5 +22,9 @@
     "uuid": "^3.3.2",
     "uuid-parse": "^1.0.0",
     "wildcards-to-mysql": "^1.0.0"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "24fd677eacfea47bee7784302f0353b4c5c4144b"
 }

@@ -32,5 +32,9 @@
     "start": "node -r dotenv/config src/index.js",
     "test": "node test/test.js",
     "createaccount": "node -r dotenv/config bin/createaccount.js"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "24fd677eacfea47bee7784302f0353b4c5c4144b"
 }
