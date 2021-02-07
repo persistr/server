@@ -41,9 +41,10 @@ Schemas.is = function (something) {
     valid: function (schema) {
       try {
         var valid = validator.validate(schema, something)
-        if (!valid) console.log(validator.errorsText())
+        if (!valid) console.error(validator.errorsText())
         return valid
       } catch (error) {
+        console.error(error.message + '\t' + error.stack)
         return false
       }
     }
@@ -60,6 +61,7 @@ Schemas.validate = function (schema) {
       if (error instanceof Errors.ServiceError) {
         res.status(error.status).json({ error: error.message })
       } else {
+        console.error(error.message + '\t' + error.stack)
         res.status(500).json({ error: 'Internal service error', internal: error.message, stack: error.stack })
       }
       return

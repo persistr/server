@@ -32,17 +32,16 @@ Errors.handle = function (callback) {
     try {
       await callback(req, res, next)
     } catch (error) {
-      // TODO: Log errors in the server error log.
       if (res.headersSent && res.get('content-type').includes('text/event-stream')) {
-        console.log('ERROR:', error.message)
+        console.error(error.message + '\t' + error.stack)
         res.write(`event: error\ndata: ${JSON.stringify({ message: error.message, name: error.name, status: error.status })}\n\n`)
       }
       else {
         if (error instanceof Errors.PersistrError) {
-          console.log('ERROR:', error.message)
+          console.error(error.message + '\t' + error.stack)
           res.status(error.status).json({ error: error.message })
         } else {
-          console.log(error)
+          console.error(error.message + '\t' + error.stack)
           res.status(500).json({ error: 'Internal service error', internal: error.message, stack: error.stack })
         }
       }

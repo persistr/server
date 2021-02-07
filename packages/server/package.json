@@ -16,7 +16,9 @@
   "dependencies": {
     "@persistr/server-api": "^4.3.6",
     "@persistr/server-config": "^4.4.0",
+    "@persistr/server-crypto": "^4.3.6",
     "@persistr/server-errors": "^4.3.4",
+    "@persistr/server-log": "^4.4.0",
     "@persistr/server-store": "^4.4.0",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
@@ -25,8 +27,13 @@
     "express": "^4.17.0",
     "express-https-middleware": "^1.0.1",
     "js-yaml": "^4.0.0",
+    "kleur": "^3.0.3",
+    "mysql": "^2.18.1",
+    "mysql-import": "^5.0.20",
     "passgen": "^1.1.0",
-    "prompts": "^2.4.0"
+    "prompts": "^2.4.0",
+    "uuid": "^8.3.2",
+    "uuid-parse": "^1.1.0"
   },
   "scripts": {
     "debug": "ndb -r dotenv/config src/index.js",

@@ -66,7 +66,7 @@ async function main () {
     await server.start()
   }
   catch (error) {
-    console.log('ERROR:', error.message)
+    console.error(error.message + '\t' + error.stack)
     await server.stop()
     return
   }
@@ -78,7 +78,7 @@ async function main () {
       if (req.credentials.scheme === 'Basic') await req.credentials.issue(res)
     }
     catch (error) {
-      console.log('ERROR:', error.message)
+      console.error(error.message + '\t' + error.stack)
     }
     next()
   })
@@ -97,8 +97,7 @@ async function main () {
 
   // Register error handler.
   router.use(function (err, req, res, next) {
-    console.log('SERVER ERROR')
-    console.error(err.stack)
+    console.error(err.message + '\t' + err.stack)
     if (res.headersSent) return next(err)
     res.status(500).send()
   })
@@ -106,6 +105,9 @@ async function main () {
   // Run HTTP server.
   app.listen(config.port, () => {
     console.log(`Running on port ${config.port}`)
+
+    // Override console.log() with Persistr logging.
+    logger.install()
   })
 }
 
@@ -113,19 +115,128 @@ async function configure (configFile) {
   const { begin } = await prompts({ type: 'confirm', name: 'begin', message: 'Configure?', initial: true })
   if (!begin) return true
 
-  const { mysql } = await prompts({ type: 'text', name: 'mysql', message: 'MySQL connection string?' })
-  if (!mysql) return true
-
   const { port } = await prompts({ type: 'number', name: 'port', message: 'Port?', initial: 3010, min: 1 })
   if (!port) return true
 
-  console.log(`Writing: ${configFile} ...`)
-  fs.appendFileSync(configFile, yaml.dump({ secret: passgen.create(25), port, mysql }))
-  console.log('done')
+  let { username } = await prompts({ type: 'text', name: 'username', message: 'Root username?', initial: 'root' })
+  if (username === undefined || username === null) return true
+  username = `${username}`.trim()
+  if (!username) return true
 
-  reload(configFile)
+  const { password } = await prompts({ type: 'password', name: 'password', message: 'Root password?' })
+  if (password === undefined || password === null) return true
+
+  let { logfolder } = await prompts({ type: 'text', name: 'logfolder', message: 'Log folder?', initial: `${os.homedir}/.persistr-server/logs/` })
+  if (logfolder === undefined || logfolder === null) return true
+  logfolder = `${logfolder}`.trim()
+  if (!logfolder) return true
+
+  let { url } = await prompts({ type: 'text', name: 'url', message: 'MySQL connection string?' })
+  if (url === undefined || url === null) return true
+  url = `${url}`.trim()
+  if (!url) return true
+
+  if (!url.match(/^mysql:\/\/[^\/]+\/persistr($|[^a-zA-Z0-9].*$)/)) {
+    console.log(`ERROR: Database name must be 'persistr'`)
+    return true
+  }
+
+  fs.mkdirSync(path.dirname(configFile), { recursive: true })
+  fs.writeFileSync(configFile, yaml.dump({
+    secret: passgen.create(25),
+    port,
+    log: { folder: logfolder },
+    mysql: url
+  }))
+  console.log(kleur.green('✔') + ` Wrote configuration to ${configFile}`)
+
+  try {
+    reload(configFile)
+  }
+  catch (error) {
+    console.log('ERROR:', error.message)
+    fs.unlinkSync(configFile)
+    return true
+  }
+
+  const importer = new Importer({
+    host: config.mysql.host,
+    user: config.mysql.user,
+    password: config.mysql.password })
+  try {
+    await importer.import(`${__dirname}/../../server-store/sql/`)
+  }
+  catch (error) {
+    console.log('ERROR:', error.message)
+    fs.unlinkSync(configFile)
+    return true
+  }
+  console.log(kleur.green('✔') + ` Created MySQL 'persistr' database and tables`)
+
+  const connection = mysql.createConnection({
+    host: config.mysql.host,
+    user: config.mysql.user,
+    password: config.mysql.password,
+    database: config.mysql.database
+  })
+
+  connection.connect()
+
+  const rootAccount = {
+    id: uuid2hex(uuidv4()),
+    name: 'root',
+    username,
+    password: (await passwords.hash(password)) ?? '',
+    isRoot: true,
+    key: '' //await keys.generate(accountID)
+  }
+  try {
+    await new Promise((resolve, reject) => {
+      connection.query('INSERT INTO Accounts SET ?', rootAccount, function (error, results, fields) {
+        if (error) reject(error)
+        else resolve()
+      })
+    })
+  }
+  catch (error) {
+    console.log('ERROR:', error.message)
+    connection.end()
+    return
+  }
+  console.log(kleur.green('✔') + ` Created root account`)
+
+  const { demo } = await prompts({ type: 'confirm', name: 'demo', message: 'Create demo account?', initial: true })
+  if (!demo) return
+
+  const demoAccount = {
+    id: uuid2hex(uuidv4()),
+    name: 'demo',
+    username: 'demo',
+    password: (await passwords.hash('demo')) ?? '',
+    key: '' //await keys.generate(accountID)
+  }
+  try {
+    await new Promise((resolve, reject) => {
+      connection.query('INSERT INTO Accounts SET ?', demoAccount, function (error, results, fields) {
+        if (error) reject(error)
+        else resolve()
+      })
+    })
+  }
+  catch (error) {
+    console.log('ERROR:', error.message)
+    connection.end()
+    return
+  }
+  console.log(kleur.green('✔') + ` Created demo account`)
+
+  connection.end()
+}
+
+function uuid2hex (uuid) {
+  return Buffer.from(uuidParse.parse(uuid))
 }
 
 // Run server and catch any errors.
-async function run(f) { try { await f() } catch (error) { console.log(error); console.log(error.message) }}
+async function run(f) { try { await f() } catch (error) { console.error(error) }}
 run(main)
