@@ -140,7 +140,9 @@ class Store extends EventEmitter {
     }
   }
 
-  async createAccount (username, name, password) {
+  async createAccount (identity, username, name, password) {
+    if (!isRootAccount(identity.account)) throw new Errors.Forbidden('root')
+
     const accountID = uuidv4()
     const hashedPassword = await passwords.hash(password)
     const key = await keys.generate(accountID)
