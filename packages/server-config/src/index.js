@@ -6,7 +6,7 @@ const Schemas = require('./schemas')
 const os = require('os')
 
 // Location of the config file.
-const configFile = `${os.homedir}/.persistr-server.yaml`
+const configFile = `${os.homedir}/.persistr-server/config.yaml`
 let config = {}
 
 const reload = (file) => {
