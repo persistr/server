@@ -13,12 +13,17 @@ const yaml = require('js-yaml')
 const fs = require('fs')
 const prompts = require('prompts')
 const passgen = require('passgen')
+const Importer = require('mysql-import')
+const kleur = require('kleur')
+const os = require('os')
+const mysql = require('mysql')
+const { v4: uuidv4 } = require('uuid')
+const uuidParse = require('uuid-parse')
+const { keys, passwords } = require('@persistr/server-crypto')
+const logger = require('@persistr/server-log')
+const path = require('path')
 
 async function main () {
-  // Display server name and version.
-  const server = new Server()
-  console.log(server.name)
-
   // Configure server if configuration file doesn't exist.
   if (!fs.existsSync(configFile)) {
     const abort = await configure(configFile)
@@ -26,7 +31,12 @@ async function main () {
       console.log('Configuration not completed. Rerun to complete')
       return
     }
+    console.log()
   }
+
+  // Display server name and version.
+  const server = new Server()
+  console.log(server.name)
 
   // Remove built-in Express headers that we don't want.
   const app = express()
