@@ -27,6 +27,7 @@ CREATE TABLE `Accounts` (
   `password` varchar(300) NOT NULL,
   `key` varchar(500) NOT NULL,
   `isActive` tinyint(4) DEFAULT '1',
+  `isRoot` tinyint(4) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `username_UNIQUE` (`username`)

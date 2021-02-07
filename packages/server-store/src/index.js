@@ -83,6 +83,12 @@ class Store extends EventEmitter {
 
   // Accounts
 
+  async isRootAccount (id) {
+    let results = await sql.read('SELECT `isRoot` FROM Accounts WHERE id = ? AND isActive = 1', [ uuid2hex(id) ])
+    if (!results || !results.length) throw new Errors.AccountNotFound()
+    return results[0].isRoot
+  }
+
   async findAccountID (username) {
     let results = await sql.read('SELECT `id` FROM Accounts WHERE username = ? AND isActive = 1', [ username ])
     if (!results || !results.length) throw new Errors.AccountNotFound()
