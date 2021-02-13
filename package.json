@@ -8,7 +8,6 @@
   },
   "scripts": {
     "build": "npx lerna bootstrap",
-    "start": "npm start --silent --prefix packages/server/",
-    "createaccount": "cd packages/server && node -r dotenv/config bin/createaccount.js"
+    "start": "npm start --silent --prefix packages/server/"
   }
 }

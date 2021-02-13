@@ -38,8 +38,7 @@
   "scripts": {
     "debug": "ndb -r dotenv/config src/index.js",
     "start": "node -r dotenv/config src/index.js",
-    "test": "node test/test.js",
-    "createaccount": "node -r dotenv/config bin/createaccount.js"
+    "test": "node test/test.js"
   },
   "publishConfig": {
     "access": "public"
