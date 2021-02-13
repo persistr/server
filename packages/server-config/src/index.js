@@ -58,7 +58,8 @@ const reload = (file) => {
   }
 
   // Set defaults and/or environment overrides.
-  if (!config.port) config.port = process.env.PORT || 3010
+  if (!config.port) config.port = 3010
+  config.port = process.env.PORT || config.port
 }
 
 // Parse the config file.
