@@ -164,7 +164,7 @@ async function configure (configFile) {
     user: config.mysql.user,
     password: config.mysql.password })
   try {
-    await importer.import(`${__dirname}/../../server-store/sql/`)
+    await importer.import(`${__dirname}/../node_modules/@persistr/server-store/sql/`)
   }
   catch (error) {
     console.log('ERROR:', error.message)
