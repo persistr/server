@@ -1,9 +1,10 @@
-const { Account } = require('@persistr/server-fluent')
+const { Connection } = require('@persistr/server-fluent')
 module.exports = {
   method: 'delete',
-  path: '/accounts/:account',
+  path: `/accounts/:username`,
   handler: async (req, res) => {
-    await Account.from(req.credentials).destroy()
+    const username = req.params.username
+    await Connection.from(req.credentials).account({ username }).destroy()
     await req.credentials.revoke()
     res.status(204).send()
   }
