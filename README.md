@@ -6,6 +6,14 @@ Persistr Server has an event-driven push model where it notifies applications of
 
 ## Prerequisites
 
+#### Node.js and NPM
+
+Persistr Server is built using Node.js. It has been tested with `Node.js v14` and `NPM 7`. Make sure that you have both installed before installing Persistr Server.
+
+The easiest way to install Node.js is to [install Node.js via package manager](https://nodejs.org/en/download/package-manager/) for your platform. NPM should come bundled with Node.js but if for some reason it doesn't, you can review [NPM install instructions here](https://www.npmjs.com/get-npm).
+
+#### MySQL
+
 You must have a MySQL server already installed and an appropriate account created for Persistr Server to use. On first-run, you will be prompted to enter in your MySQL connection string. Persistr Server will create a database called "persistr" and will also create all the needed database tables. You just need to make sure that you have an appropriate MySQL user account for Persistr Server to use and provide the MySQL connection string when prompted.
 
 ## Install
@@ -48,7 +56,7 @@ Configuration file is saved to `~/.persistr-server/config.yaml`
 
 ## CLI
 
-There is a command-line interface for Persistr Server that can be used to manage the server and work with the data in the data store. Read on for [CLI install instructions](https://github.com/persistr/cli).
+There is a command-line interface for Persistr Server that can be used to manage the server and event streams. Read on for [CLI install instructions](https://github.com/persistr/cli).
 
 ## Client Libraries
 
