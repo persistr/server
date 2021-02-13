@@ -128,6 +128,25 @@ class Store extends EventEmitter {
     }
   }
 
+  async findAccountByUsername (identity, username) {
+    if (!isRootAccount(identity.account)) throw new Errors.Forbidden('root')
+
+    let results = await sql.read('SELECT `id`, `name`, `username` FROM Accounts WHERE username = ? AND isActive = 1', [ username ])
+    if (!results || !results.length) throw new Errors.AccountNotFound()
+
+    let accountName = results[0].name
+    let accountID = hex2uuid(results[0].id)
+
+    let dbs = await sql.read('SELECT Databases.name AS `name`, AccountDatabases.type AS `type` FROM Accounts, `Databases`, AccountDatabases WHERE Accounts.id = ? AND Databases.id = AccountDatabases.idDB AND Accounts.id = AccountDatabases.idAccount ORDER BY Databases.name', [ uuid2hex(accountID) ])
+
+    return {
+      id: accountID,
+      name: accountName,
+      username,
+      dbs: dbs.map(db => ({ name: db.name, role: kRoles[db.type] }))
+    }
+  }
+
   async findAccountByKey (accountID, key) {
     let results = await sql.read('SELECT `name`, `username` FROM Accounts WHERE id = ? AND `key` = ? AND isActive = 1', [ uuid2hex(accountID), key ])
     if (!results || !results.length) throw new Errors.AccountNotFound()
