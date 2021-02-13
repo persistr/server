@@ -29,7 +29,7 @@
     "js-yaml": "^4.0.0",
     "kleur": "^3.0.3",
     "mysql": "^2.18.1",
-    "mysql-import": "^5.0.20",
+    "mysql-import": "^5.0.21",
     "passgen": "^1.1.0",
     "prompts": "^2.4.0",
     "uuid": "^8.3.2",
