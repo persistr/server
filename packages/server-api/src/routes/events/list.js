@@ -1,4 +1,4 @@
-const { Account } = require('@persistr/server-fluent')
+const { Connection } = require('@persistr/server-fluent')
 const querystring = require('querystring')
 module.exports = {
   method: 'get',
@@ -10,7 +10,7 @@ module.exports = {
 
       // Not streaming. Return standard JSON back to the client.
       res.set({ 'Content-Type': 'application/json' }).status(200)
-      const stream = Account.from(req.credentials).db(req.params.db).ns(req.params.ns).stream(req.params.stream)
+      const stream = Connection.from(req.credentials).db(req.params.db).ns(req.params.ns).stream(req.params.stream)
       const types = req.query.types ? `${decodeURIComponent(req.query.types)}`.split(',') : undefined
       let results = await stream.events({ schema: 'jsonapi', types, from: req.query.from, after: req.query.after, to: req.query.to, until: req.query.until || 'caught-up', limit: req.query.limit }).all()
       if (req.query.schema === 'jsonapi') {
@@ -47,7 +47,7 @@ module.exports = {
       // Direct the client to retry every 10 seconds if connectivity is lost.
       res.write('retry: 10000\n\n')
 
-      const stream = Account.from(req.credentials).db(req.params.db).ns(req.params.ns).stream(req.params.stream)
+      const stream = Connection.from(req.credentials).db(req.params.db).ns(req.params.ns).stream(req.params.stream)
       const types = req.query.types ? `${decodeURIComponent(req.query.types)}`.split(',') : undefined
       const events = stream.events({
         schema: 'jsonapi',

@@ -1,4 +1,4 @@
-const { Account } = require('@persistr/server-fluent')
+const { Connection } = require('@persistr/server-fluent')
 const querystring = require('querystring')
 module.exports = {
   method: 'get',
@@ -10,7 +10,7 @@ module.exports = {
 
       // Not streaming. Return standard JSON back to the client.
       res.set({ 'Content-Type': 'application/json' }).status(200)
-      const db = Account.from(req.credentials).db(req.params.db)
+      const db = Connection.from(req.credentials).db(req.params.db)
       const types = req.query.types ? `${decodeURIComponent(req.query.types)}`.split(',') : undefined
       let ns = req.query.ns ? req.query.ns : ( req.query.stream ? '' : undefined )
       if (ns !== undefined) ns = db.ns(ns)
@@ -45,7 +45,7 @@ module.exports = {
       // Direct the client to retry after 1 second if connectivity is lost.
       res.write('retry: 1000\n\n')
 
-      const db = Account.from(req.credentials).db(req.params.db)
+      const db = Connection.from(req.credentials).db(req.params.db)
       const types = req.query.types ? `${decodeURIComponent(req.query.types)}`.split(',') : undefined
       let ns = req.query.ns ? req.query.ns : ( req.query.stream ? '' : undefined )
       if (ns !== undefined) ns = db.ns(ns)
