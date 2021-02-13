@@ -173,8 +173,13 @@ class Store extends EventEmitter {
     return { id: accountID, name, username, dbs: [], key }
   }
 
-  async destroyAccount (identity, accountID) {
-    if (!identity.is.account({ account: accountID })) throw new Errors.Forbidden('owner')
+  async destroyAccount (identity, username) {
+    if (!isRootAccount(identity.account)) throw new Errors.Forbidden('root')
+
+    let results = await sql.read('SELECT `id` FROM Accounts WHERE username = ? AND isRoot = 0', [ username ])
+    if (!results || !results.length) throw new Errors.AccountNotFound()
+    let accountID = hex2uuid(results[0].id)
+
     await sql.write('DELETE FROM Events WHERE db IN (SELECT idDB AS db FROM AccountDatabases WHERE idAccount = ?)', [ uuid2hex(accountID) ])
     await sql.write('DELETE FROM Annotations WHERE db IN (SELECT idDB AS db FROM AccountDatabases WHERE idAccount = ?)', [ uuid2hex(accountID) ])
     await sql.write('DELETE FROM Namespaces WHERE db IN (SELECT idDB AS db FROM AccountDatabases WHERE idAccount = ?)', [ uuid2hex(accountID) ])
@@ -183,9 +188,30 @@ class Store extends EventEmitter {
     await sql.write('DELETE FROM Accounts WHERE id = ?', [ uuid2hex(accountID) ])
   }
 
+  async activateAccount (identity, username) {
+    if (!isRootAccount(identity.account)) throw new Errors.Forbidden('root')
+    let results = await sql.write('UPDATE `Accounts` SET `isActive` = 1 WHERE username = ? AND isRoot = 0', [ username ])
+    if (results && !results.affectedRows) throw new Errors.AccountNotFound()
+  }
+
+  async deactivateAccount (identity, username) {
+    if (!isRootAccount(identity.account)) throw new Errors.Forbidden('root')
+    let results = await sql.write('UPDATE `Accounts` SET `isActive` = 0 WHERE username = ? AND isRoot = 0', [ username ])
+    if (results && !results.affectedRows) throw new Errors.AccountNotFound()
+  }
+
   async profileAccount (identity, id) {
     if (!identity.is.account({ account: id })) throw new Errors.Forbidden('owner')
     return await this.findAccountByID(id)
+  }
+
+  async listAccounts (identity, callback) {
+    if (!isRootAccount(identity.account)) throw new Errors.Forbidden('root')
+    await sql.read('SELECT `username`, `name`, `isActive` FROM `Accounts` WHERE `isRoot` = 0', [], {
+      each: row => {
+        callback({ name: row.name, username: row.username, isActive: row.isActive })
+      }
+    })
   }
 
   // Databases
