@@ -1,11 +1,18 @@
 class Annotation {
-  constructor ({ store, stream }) {
-    this.store = store
+  constructor (stream) {
     this.stream = stream
   }
 
-  get account() {
-    return this.db.account
+  get store() {
+    return this.connection.store
+  }
+
+  get identity() {
+    return this.connection.identity
+  }
+
+  get connection() {
+    return this.db.connection
   }
 
   get db() {
@@ -17,11 +24,11 @@ class Annotation {
   }
 
   async read () {
-    return this.store.readAnnotation(this.account.identity, this.db.name, this.ns.name, this.stream.id, this.account.id)
+    return this.store.readAnnotation(this.identity, this.db.name, this.ns.name, this.stream.id, this.identity.account)
   }
 
   async destroy () {
-    return this.store.destroyAnnotation(this.account.identity, this.db.name, this.ns.name, this.stream.id, this.account.id)
+    return this.store.destroyAnnotation(this.identity, this.db.name, this.ns.name, this.stream.id, this.identity.account)
   }
 }
 

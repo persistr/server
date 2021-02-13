@@ -1,16 +1,19 @@
 class Event {
-  constructor ({ store, stream, id }) {
-    this.store = store
+  constructor (stream, { id }) {
     this.stream = stream
     this.id = id
   }
 
-  get name () {
-    return this.id
+  get store() {
+    return this.connection.store
   }
 
-  get account() {
-    return this.db.account
+  get identity() {
+    return this.connection.identity
+  }
+
+  get connection() {
+    return this.db.connection
   }
 
   get db() {
@@ -21,12 +24,16 @@ class Event {
     return this.stream.ns
   }
 
+  get name () {
+    return this.id
+  }
+
   async read () {
-    return this.store.readEvent(this.account.identity, this.db.name, this.ns.name, this.stream.id, this.id, this.account.id)
+    return this.store.readEvent(this.identity, this.db.name, this.ns.name, this.stream.id, this.id, this.identity.account)
   }
 
   async destroy () {
-    return this.store.destroyEvent(this.account.identity, this.db.name, this.ns.name, this.stream.id, this.id, this.account.id)
+    return this.store.destroyEvent(this.identity, this.db.name, this.ns.name, this.stream.id, this.id, this.identity.account)
   }
 }
 

@@ -1,22 +1,25 @@
 const Stream = require('./Stream')
 
 class Streams {
-  constructor ({ store, db, ns }) {
-    this.store = store
-    this._db = db
+  constructor (db, { ns }) {
+    this.db = db
     this.ns = ns
   }
 
-  get db() {
-    return this._db || this.ns.db
+  get store() {
+    return this.connection.store
   }
 
-  get account() {
-    return this.db.account
+  get identity() {
+    return this.connection.identity
+  }
+
+  get connection() {
+    return this.db.connection
   }
 
   async each (callback) {
-    return this.store.listStreams(this.account.identity, this.db.name, this.ns?.name, callback)
+    return this.store.listStreams(this.identity, this.db.name, this.ns, callback)
   }
 }
 

@@ -1,15 +1,22 @@
 class Namespaces {
-  constructor ({ store, db }) {
-    this.store = store
+  constructor (db) {
     this.db = db
   }
 
-  get account() {
-    return this.db.account
+  get store() {
+    return this.connection.store
+  }
+
+  get identity() {
+    return this.connection.identity
+  }
+
+  get connection() {
+    return this.db.connection
   }
 
   async each (callback) {
-    return this.store.listNamespaces(this.account.identity, this.db.name, callback)
+    return this.store.listNamespaces(this.identity, this.db.name, callback)
   }
 }
 

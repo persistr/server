@@ -1,6 +1,8 @@
 module.exports = {
   Account: require('./Account'),
+  Accounts: require('./Accounts'),
   Annotation: require('./Annotation'),
+  Connection: require('./Connection'),
   Database: require('./Database'),
   Databases: require('./Databases'),
   Event: require('./Event'),

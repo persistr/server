@@ -4,12 +4,11 @@ const { Duplex } = require('stream')
 const Event = require('./Event')
 
 class Events extends Duplex {
-  constructor ({ store, db, ns, stream, types, from, after, to, until, limit, schema }) {
+  constructor (db, { ns, stream, types, from, after, to, until, limit, schema }) {
     super({ objectMode: true })
 
-    this.store = store
-    this._db = db
-    this._ns = ns
+    this.db = db
+    this.ns = ns
     this.stream = stream
     this.types = Array.isArray(types) ? types : (types ? [ types ] : undefined)
     this.from = from
@@ -23,39 +22,39 @@ class Events extends Duplex {
 
     const listener = function({ account, event }) {
       if (this.db.name !== event.meta.db) return
-      if (this.ns && this.ns.name !== event.meta.ns) return
-      if (this.stream && this.stream.id !== event.meta.stream) return
+      if (this.ns !== undefined && this.ns !== event.meta.ns) return
+      if (this.stream && this.stream !== event.meta.stream) return
       if (this.types && !this.types.includes(event.meta.type)) return
       this.push({ data: [ event ]})
     }
     this.listener = listener.bind(this)
   }
 
-  get account() {
-    return this.db.account
+  get store() {
+    return this.connection.store
   }
 
-  get db() {
-    return this._db || this.ns.db
+  get identity() {
+    return this.connection.identity
   }
 
-  get ns() {
-    return this._ns || this.stream?.ns
+  get connection() {
+    return this.db.connection
   }
 
   _write (params, encoding, callback) {
-    if (!this.stream) throw new Errors.StreamNotSpecified(this.db.name, this.ns.name)
+    if (!this.stream) throw new Errors.StreamNotSpecified(this.db.name, this.ns)
     this.store.writeEvent(
-      this.account.identity,
+      this.identity,
       {
         db: this.db.name,
-        ns: this.ns.name,
-        stream: this.stream.id,
+        ns: this.ns,
+        stream: this.stream,
         id: params.id,
         data: params.data,
         meta: params.meta
       },
-      this.account.id)
+      this.identity.account)
     .then(callback())
     .catch((err) => callback(err))
   }
@@ -64,31 +63,31 @@ class Events extends Duplex {
     if (Array.isArray(params)) {
       for (const event of params) {
         await this.store.writeEvent(
-          this.account.identity,
+          this.identity,
           {
             db: this.db.name,
-            ns: this.ns.name,
-            stream: this.stream.id,
+            ns: this.ns,
+            stream: this.stream,
             id: event.id,
             data: event.data,
             meta: event.meta
           },
-          this.account.id)
+          this.identity.account)
       }
       return params.length
     }
 
     await this.store.writeEvent(
-      this.account.identity,
+      this.identity,
       {
         db: this.db.name,
-        ns: this.ns.name,
-        stream: this.stream.id,
+        ns: this.ns,
+        stream: this.stream,
         id: params.id,
         data: params.data,
         meta: params.meta
       },
-      this.account.id)
+      this.identity.account)
     return 1
   }
 
@@ -99,8 +98,7 @@ class Events extends Duplex {
 
     // Read historical events from the stream.
     if (this.after !== 'past-events') {
-      let streamID = this.stream ? this.stream.id : undefined
-      let results = await this.store.listEvents(this.account.identity, { db: this.db.name, ns: this.ns?.name, stream: streamID, types: this.types, from: this.from, after: this.after, to: this.to, until: this.until, limit: this.limit })
+      let results = await this.store.listEvents(this.identity, { db: this.db.name, ns: this.ns, stream: this.stream, types: this.types, from: this.from, after: this.after, to: this.to, until: this.until, limit: this.limit })
         .catch(err => this.emit('error', err))
       if (results && results.data) {
         this.push(results)

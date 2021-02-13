@@ -1,44 +1,39 @@
-const Database = require('./Database')
-const Databases = require('./Databases')
-const Errors = require('./errors')
-
 class Account {
-  static from(credentials) {
-    if (!credentials) throw new Errors.InvalidCredentials()
-    return new Account({ account: credentials.summary, store: credentials.store, identity: credentials.identity })
+  constructor (connection, options) {
+    this.connection = connection
+    this.id = options?.id
+    this.name = options?.name
+    this.username = options?.username
   }
 
-  constructor ({ account, identity, store }) {
-    this.id = account.id
-    this.username = account.username
-    this.name = account.name
-    this._dbs = account.dbs
-    this.identity = identity
-    this.store = store
+  get store() {
+    return this.connection.store
   }
 
-  async profile () {
-    return this.store.profileAccount(this.identity, this.id)
+  get identity() {
+    return this.connection.identity
+  }
+
+  async create (options) {
+    const { password } = options
+    return this.store.createAccount(this.identity, this.username, this.name, password)
   }
 
   async destroy () {
-    return this.store.destroyAccount(this.identity, this.id)
+    return this.store.destroyAccount(this.identity, this.username)
   }
 
-  dbs () {
-    return new Databases({ store: this.store, account: this })
+  async activate () {
+    return this.store.activateAccount(this.identity, this.username)
   }
 
-  db (name) {
-    return new Database({ store: this.store, account: this, name })
+  async deactivate () {
+    return this.store.deactivateAccount(this.identity, this.username)
   }
 
-  databases () {
-    return this.dbs()
-  }
-
-  database (name) {
-    return this.db(name)
+  async profile () {
+    if (this.username) return this.store.findAccountByUsername(this.identity, this.username)
+    return this.store.profileAccount(this.identity, this.identity.account)
   }
 }
 

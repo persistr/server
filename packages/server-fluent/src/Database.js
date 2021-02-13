@@ -4,50 +4,57 @@ const Namespaces = require('./Namespaces')
 const Streams = require('./Streams')
 
 class Database {
-  constructor ({ store, account, name }) {
-    this.store = store
-    this.account = account
+  constructor (connection, { name }) {
+    this.connection = connection
     this.name = name
   }
 
+  get store() {
+    return this.connection.store
+  }
+
+  get identity() {
+    return this.connection.identity
+  }
+
   namespaces () {
-    return new Namespaces({ store: this.store, db: this })
+    return new Namespaces(this)
   }
 
   ns (name) {
-    return new Namespace({ store: this.store, db: this, name })
+    return new Namespace(this, { name })
   }
 
   streams () {
-    return new Streams({ store: this.store, db: this })
+    return new Streams(this)
   }
 
   events (options) {
-    return new Events({ ...options, store: this.store, db: this })
+    return new Events(this, options)
   }
 
   async create () {
-    return this.store.createDatabase(this.name, this.account.id)
+    return this.store.createDatabase(this.name, this.identity.account)
   }
 
   async clone (to) {
-    return this.store.cloneDatabase(this.account.identity, this.name, to, this.account.id)
+    return this.store.cloneDatabase(this.identity, this.name, to, this.identity.account)
   }
 
   async destroy () {
-    return this.store.destroyDatabase(this.account.identity, this.name, this.account.id)
+    return this.store.destroyDatabase(this.identity, this.name, this.identity.account)
   }
 
   async rename (name) {
-    return this.store.renameDatabase(this.account.identity, this.name, name, this.account.id)
+    return this.store.renameDatabase(this.identity, this.name, name, this.identity.account)
   }
 
   async grant({ role, username }) {
-    return this.store.grantAccount(this.account.identity, this.name, role, username, this.account.id)
+    return this.store.grantAccount(this.identity, this.name, role, username, this.identity.account)
   }
 
   async revoke({ username }) {
-    return this.store.revokeAccount(this.account.identity, this.name, username, this.account.id)
+    return this.store.revokeAccount(this.identity, this.name, username, this.identity.account)
   }
 }
 

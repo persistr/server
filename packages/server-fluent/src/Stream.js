@@ -3,38 +3,42 @@ const Event = require('./Event')
 const Events = require('./Events')
 
 class Stream {
-  constructor ({ store, ns, stream }) {
-    this.store = store
+  constructor (db, { ns, stream }) {
+    this.db = db
     this.ns = ns
     this.id = stream
   }
 
-  get account() {
-    return this.db.account
+  get store() {
+    return this.connection.store
   }
 
-  get db() {
-    return this.ns.db
+  get identity() {
+    return this.connection.identity
+  }
+
+  get connection() {
+    return this.db.connection
   }
 
   events (options) {
-    return new Events({ ...options, store: this.store, stream: this })
+    return new Events(this.db, { ...options, stream: this.id })
   }
 
   event (id) {
-    return new Event({ store: this.store, stream: this, id })
+    return new Event(this, { id })
   }
 
   annotation () {
-    return new Annotation({ store: this.store, stream: this })
+    return new Annotation(this)
   }
 
   async annotate (annotation) {
-    return this.store.writeAnnotation(this.account.identity, this.db.name, this.ns.name, this.id, annotation, this.account.id)
+    return this.store.writeAnnotation(this.identity, this.db.name, this.ns, this.id, annotation, this.identity.account)
   }
 
   async destroy () {
-    return this.store.destroyStream(this.account.identity, this.db.name, this.ns.name, this.id, this.account.id)
+    return this.store.destroyStream(this.identity, this.db.name, this.ns, this.id, this.identity.account)
   }
 }
 

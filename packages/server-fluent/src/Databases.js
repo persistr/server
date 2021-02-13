@@ -1,11 +1,18 @@
 class Databases {
-  constructor ({ store, account }) {
-    this.store = store
-    this.account = account
+  constructor (connection) {
+    this.connection = connection
+  }
+
+  get store() {
+    return this.connection.store
+  }
+
+  get identity() {
+    return this.connection.identity
   }
 
   async each (callback) {
-    return this.store.listDatabases(this.account.id, callback)
+    return this.store.listDatabases(this.identity.account, callback)
   }
 }
 
