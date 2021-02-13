@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server-fluent",
-  "version": "4.3.5",
+  "version": "4.5.0",
   "description": "Persistr Server fluent SDK",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
@@ -11,7 +11,7 @@
     "directory": "packages/server-fluent"
   },
   "dependencies": {
-    "@persistr/server-errors": "^4.3.4",
+    "@persistr/server-errors": "^4.5.0",
     "async-queue": "^0.1.0",
     "luxon": "^1.15.0"
   },

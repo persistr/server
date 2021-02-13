@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server-crypto",
-  "version": "4.3.6",
+  "version": "4.5.0",
   "description": "Persistr Server crypto functionality",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
@@ -11,8 +11,8 @@
     "directory": "packages/server-crypto"
   },
   "dependencies": {
-    "@persistr/server-errors": "^4.3.4",
-    "@persistr/server-schemas": "^4.3.6",
+    "@persistr/server-errors": "^4.5.0",
+    "@persistr/server-schemas": "^4.5.0",
     "luxon": "^1.3.2",
     "node-webtokens": "^1.0.0",
     "password-hash-and-salt": "^0.1.4"

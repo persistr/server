@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server-config",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "description": "Persistr Server configuration support",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
@@ -11,8 +11,8 @@
     "directory": "packages/server-config"
   },
   "dependencies": {
-    "@persistr/server-errors": "^4.3.4",
-    "@persistr/server-schemas": "^4.3.6",
+    "@persistr/server-errors": "^4.5.0",
+    "@persistr/server-schemas": "^4.5.0",
     "connection-string-parser": "^1.0.3",
     "js-yaml": "^4.0.0"
   },
