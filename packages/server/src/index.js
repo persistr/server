@@ -8,7 +8,6 @@ const cors = require('cors')
 const { config, configFile, reload } = require('@persistr/server-config')
 const Errors = require('@persistr/server-errors')
 const express = require('express')
-const https = require('express-https-middleware')
 const yaml = require('js-yaml')
 const fs = require('fs')
 const prompts = require('prompts')
@@ -57,9 +56,6 @@ async function main () {
   // Register JSON body parsers.
   router.use(bodyParser.json({ type: 'application/json' }))
   router.use(Errors.json)
-
-  // Redirect http to https.
-  router.use(https.redirect)
 
   // Start the Persistr server.
   try {
