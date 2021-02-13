@@ -22,9 +22,12 @@ const reload = (file) => {
   // Validate config.
   if (!Schemas.is(config).valid('config/file')) throw(new Errors.InvalidConfigFile())
 
+  // Override server secret, if needed.
+  config.secret = process.env.PERSISTR_SERVER_SECRET || config.secret
+
   // Parse MySQL connection string.
   const connectionStringParser = new ConnectionStringParser({ scheme: "mysql", hosts: [] })
-  const cxn = connectionStringParser.parse(config.mysql)
+  const cxn = connectionStringParser.parse(process.env.PERSISTR_MYSQL || config.mysql)
   cxn.host = { name: cxn.hosts?.[0]?.host, port: cxn.hosts?.[0]?.port }
   cxn.host = cxn.host || {}
 
