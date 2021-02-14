@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server-store",
-  "version": "4.5.4",
+  "version": "4.5.6",
   "description": "Persistr Server backing data store",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
