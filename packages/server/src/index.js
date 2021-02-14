@@ -201,7 +201,7 @@ async function configure (configFile) {
   }
   console.log(kleur.green('✔') + ` Created root account`)
 
-  const { demo } = await prompts({ type: 'confirm', name: 'demo', message: 'Create demo account?', initial: true })
+  const { demo } = await prompts({ type: 'confirm', name: 'demo', message: 'Create demo account & database?', initial: true })
   if (!demo) return
 
   const demoAccount = {
@@ -211,11 +211,27 @@ async function configure (configFile) {
     password: (await passwords.hash('demo')) ?? '',
     key: '' //await keys.generate(accountID)
   }
+  const demoDatabase = {
+    id: uuid2hex(uuidv4()),
+    name: 'demo'
+  }
+  const demoAccountDatabase = {
+    idDB: demoDatabase.id,
+    idAccount: demoAccount.id,
+    type: 1
+  }
+
   try {
     await new Promise((resolve, reject) => {
       connection.query('INSERT INTO Accounts SET ?', demoAccount, function (error, results, fields) {
-        if (error) reject(error)
-        else resolve()
+        if (error) { reject(error); return }
+        connection.query('INSERT INTO `Databases` SET ?', demoDatabase, function (error, results, fields) {
+          if (error) { reject(error); return }
+          connection.query('INSERT INTO `AccountDatabases` SET ?', demoAccountDatabase, function (error, results, fields) {
+            if (error) { reject(error); return }
+            resolve()
+          })
+        })
       })
     })
   }
@@ -224,7 +240,7 @@ async function configure (configFile) {
     connection.end()
     return
   }
-  console.log(kleur.green('✔') + ` Created demo account`)
+  console.log(kleur.green('✔') + ` Created demo account & database`)
 
   connection.end()
 }
