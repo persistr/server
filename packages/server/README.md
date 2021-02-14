@@ -37,10 +37,10 @@ $ persistr-server
 ✔ Wrote configuration to /Users/me/.persistr-server/config.yaml
 ✔ Created MySQL 'persistr' database and tables
 ✔ Created root account
-✔ Create demo account? … yes
-✔ Created demo account
+✔ Create demo account & database? … yes
+✔ Created demo account & database
 
-Persistr Server v4.5.4
+Persistr Server v4.5.7
 Running on port 3010
 ```
 
