@@ -47,45 +47,20 @@ class Events extends Duplex {
     this.store.writeEvent(
       this.identity,
       {
-        db: this.db.name,
-        ns: this.ns,
-        stream: this.stream,
-        id: params.id,
-        data: params.data,
-        meta: params.meta
+        data: params.data ?? {},
+        meta: { ...(params.meta ?? {}), db: this.db.name, ns: this.ns, stream: this.stream }
       },
       this.identity.account)
     .then(callback())
     .catch((err) => callback(err))
   }
 
-  async write(params, callback) {
-    if (Array.isArray(params)) {
-      for (const event of params) {
-        await this.store.writeEvent(
-          this.identity,
-          {
-            db: this.db.name,
-            ns: this.ns,
-            stream: this.stream,
-            id: event.id,
-            data: event.data,
-            meta: event.meta
-          },
-          this.identity.account)
-      }
-      return params.length
-    }
-
+  async write(event, callback) {
     await this.store.writeEvent(
       this.identity,
       {
-        db: this.db.name,
-        ns: this.ns,
-        stream: this.stream,
-        id: params.id,
-        data: params.data,
-        meta: params.meta
+        data: event.data ?? {},
+        meta: { ...(event.meta ?? {}), db: this.db.name, ns: this.ns, stream: this.stream }
       },
       this.identity.account)
     return 1

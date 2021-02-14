@@ -761,40 +761,30 @@ LIMIT 50
     return results
   }
 
-  async writeEvent (identity, params, accountID) {
-    if (!identity.is.member({ db: params.db })) throw new Errors.ForbiddenOrDatabaseNotFound('member', params.db)
+  async writeEvent (identity, event, accountID) {
+    if (!identity.is.member({ db: event.meta.db })) throw new Errors.ForbiddenOrDatabaseNotFound('member', event.meta.db)
 
-    params.ts = new Date()
-
-    if (!params.id) params.id = uuidv4()
-
-    params.meta = Object.assign({ tz: DateTime.local().zoneName }, params.meta, {
-      id: params.id,
-      stream: params.stream,
-      ns: params.ns,
-      db: params.db,
-      ts: params.ts.toISOString()
+    event.data = event.data || {}
+    event.meta = Object.assign({ id: uuidv4(), tz: DateTime.local().zoneName }, event.meta, {
+      ts: new Date().toISOString().replace('T', ' ').replace('Z', '')
     })
 
-    params.data = params.data || {}
-
-    const dbID = await findDatabaseID(params.db)
-    const nsID = await findOrCreateNamespaceID(identity, params.db, dbID, params.ns)
+    const dbID = await findDatabaseID(event.meta.db)
+    const nsID = await findOrCreateNamespaceID(identity, event.meta.db, dbID, event.meta.ns)
 
     let [error] = await to(sql.write('INSERT INTO Events SET ?', {
-      id: uuid2hex(params.id),
-      ts: params.ts,
+      id: uuid2hex(event.meta.id),
+      ts: event.meta.ts,
       db: uuid2hex(dbID),
       ns: uuid2hex(nsID),
-      stream: uuid2hex(params.stream),
-      meta: JSON.stringify(params.meta),
-      data: JSON.stringify(params.data)
+      stream: uuid2hex(event.meta.stream),
+      meta: JSON.stringify(event.meta),
+      data: JSON.stringify(event.data)
     }))
 
-    if (error && error.code === 'ER_DUP_ENTRY') throw new Errors.DuplicateEvent(params.id)
+    if (error && error.code === 'ER_DUP_ENTRY') throw new Errors.DuplicateEvent(event.meta.id)
     if (error) throw error
 
-    const event = { data: params.data, meta: params.meta }
     this.emit('eventwritten', { account: accountID, event })
 
     return event
