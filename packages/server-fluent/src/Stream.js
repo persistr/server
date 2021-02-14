@@ -22,7 +22,7 @@ class Stream {
   }
 
   events (options) {
-    return new Events(this.db, { ...options, stream: this.id })
+    return new Events(this.db, { ...options, ns: this.ns, stream: this.id })
   }
 
   event (id) {
