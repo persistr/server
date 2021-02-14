@@ -13,8 +13,7 @@ module.exports = {
       const db = Connection.from(req.credentials).db(req.params.db)
       const types = req.query.types ? `${decodeURIComponent(req.query.types)}`.split(',') : undefined
       let ns = req.query.ns ? req.query.ns : ( req.query.stream ? '' : undefined )
-      if (ns !== undefined) ns = db.ns(ns)
-      const stream = req.query.stream ? (ns ? ns.stream(req.query.stream) : db.ns('').stream(req.query.stream)) : undefined
+      const stream = req.query.stream
       let results = await db.events({ schema: 'jsonapi', ns, stream, types, from: req.query.from, after: req.query.after, to: req.query.to, until: req.query.until || 'caught-up', limit: req.query.limit }).all()
       if (req.query.schema === 'jsonapi') {
         res.json({
@@ -48,8 +47,7 @@ module.exports = {
       const db = Connection.from(req.credentials).db(req.params.db)
       const types = req.query.types ? `${decodeURIComponent(req.query.types)}`.split(',') : undefined
       let ns = req.query.ns ? req.query.ns : ( req.query.stream ? '' : undefined )
-      if (ns !== undefined) ns = db.ns(ns)
-      const stream = req.query.stream ? (ns ? ns.stream(req.query.stream) : db.ns('').stream(req.query.stream)) : undefined
+      const stream = req.query.stream
       const events = db.events({
         schema: 'jsonapi',
         ns,
