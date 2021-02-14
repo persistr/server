@@ -10,5 +10,5 @@
             "type": "object"
         }
     },
-    "required": [ "data" ]
+    "required": [ "data", "meta" ]
 }
