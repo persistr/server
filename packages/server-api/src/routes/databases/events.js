@@ -63,6 +63,7 @@ module.exports = {
       req.on('close', function() {
         // Stop streaming events.
         events.push(null)
+// TODO: Replace with cancel() due to Events not being a Node.js stream anymore
       })
 
       await events.each(event => {
