@@ -766,7 +766,7 @@ LIMIT 50
 
     event.data = event.data || {}
     event.meta = Object.assign({ id: uuidv4(), tz: DateTime.local().zoneName }, event.meta, {
-      ts: new Date().toISOString().replace('T', ' ').replace('Z', '')
+      ts: DateTime.utc().toISO()
     })
 
     const dbID = await findDatabaseID(event.meta.db)
@@ -774,7 +774,7 @@ LIMIT 50
 
     let [error] = await to(sql.write('INSERT INTO Events SET ?', {
       id: uuid2hex(event.meta.id),
-      ts: event.meta.ts,
+      ts: DateTime.fromISO(event.meta.ts).toUTC().toSQL({ includeOffset: false }),
       db: uuid2hex(dbID),
       ns: uuid2hex(nsID),
       stream: uuid2hex(event.meta.stream),
