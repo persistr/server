@@ -301,7 +301,7 @@ class Store extends EventEmitter {
     if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
     const dbID = await findDatabaseID(db)
     const roleID = await findRoleID(role)
-    const usernameAccountID = await this.findAccountID (username)
+    const usernameAccountID = await this.findAccountID(username)
     let [ error, results ] = await to(sql.write('INSERT INTO AccountDatabases SET ? ON DUPLICATE KEY UPDATE type = ?', [{
       idDB: uuid2hex(dbID),
       idAccount: uuid2hex(usernameAccountID),
@@ -313,7 +313,7 @@ class Store extends EventEmitter {
   async revokeAccount (identity, db, username, accountID) {
     if (!identity.is.admin({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('admin', db)
     const dbID = await findDatabaseID(db)
-    const usernameAccountID = await this.findAccountID (username)
+    const usernameAccountID = await this.findAccountID(username)
     let [ error, results ] = await to(sql.write('DELETE FROM AccountDatabases WHERE idDB = ? AND idAccount = ?', [ uuid2hex(dbID), uuid2hex(usernameAccountID) ]))
   }
 
