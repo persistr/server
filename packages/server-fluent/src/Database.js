@@ -1,3 +1,5 @@
+const Cursor = require('./Cursor')
+const Cursors = require('./Cursors')
 const Events = require('./Events')
 const Namespace = require('./Namespace')
 const Namespaces = require('./Namespaces')
@@ -31,6 +33,14 @@ class Database {
 
   events (options) {
     return new Events(this, options)
+  }
+
+  cursors () {
+    return new Cursors(this)
+  }
+
+  cursor(name, options) {
+    return new Cursor(this, name, options)
   }
 
   async create () {
