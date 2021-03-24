@@ -1,4 +1,5 @@
-var mysql = require('mysql')
+const AsyncQueue = require('async-queue')
+const mysql = require('mysql')
 const { config } = require('@persistr/server-config')
 
 let writeLimit
@@ -43,21 +44,34 @@ function query(pool, sql, params, options) {
       // Perform SQL query.
       if (options && options.each) {
         // Stream results.
+        let queue = new AsyncQueue()
+        let resolved = false
         connection.query(sql, params || [])
           .on('end', () => {
             connection.release()
-            if (options.end) options.end()
-            resolve()
           })
-          .stream({ highWaterMark: 5 })
+          .stream({ highWaterMark: 1 })
           .on('data', (row) => {
-            options.each(row)
+            queue.run(async (err, job) => {
+              await options.each(row)
+              job.success()
+              if (!queue.running && !resolved) {
+                resolved = true
+                if (options.end) options.end()
+                resolve()
+              }
+            })
           })
           .on('error', (error) => {
             if (options.error) options.error(error)
             reject(error)
           })
-          .on('close', () => {
+          .on('end', () => {
+            if (!queue.running && !resolved) {
+              resolved = true
+              if (options.end) options.end()
+              resolve()
+            }
           })
       } else {
         // Don't stream results.
