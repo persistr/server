@@ -478,7 +478,7 @@ class Store extends EventEmitter {
 
   // events
 
-  async listEvents (identity, { db, ns, stream, types, from, to, after, until, limit, schema }, eachCallback, endCallback) {
+  async listEvents (identity, db, { ns, stream, types, from, to, after, until, limit, schema }, eachCallback, endCallback) {
     if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
 
     let options = {}
@@ -711,7 +711,7 @@ LIMIT 50
             last = streamScope ? event.meta.id : `${event.meta.stream}.${event.meta.id}`
             dtLast = DateTime.fromISO(event.meta.ts, { setZone: true })
             results.data.push(event)
-            if (eachCallback) eachCallback(event)
+            if (eachCallback) await eachCallback(event)
             if (count >= options.limit) break
           }
         }
@@ -732,13 +732,13 @@ LIMIT 50
     else {
       // When not filtering by type, run the query in one go.
       await sql.read(`SELECT * FROM Events ${conditions} ORDER BY ts ASC ${limitCondition}`, params, {
-        each: row => {
+        each: async row => {
           let event = { data: JSON.parse(row.data), meta: JSON.parse(row.meta) }
           results.data.push(event)
           last = domainSearch ? `${event.meta.stream}.${event.meta.id}` : event.meta.id
           results.meta.cursor.after = last
           results.links.next.after = last
-          if (eachCallback) eachCallback(event)
+          if (eachCallback) await eachCallback(event)
         }
       })
     }
