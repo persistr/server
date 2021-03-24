@@ -1,9 +1,9 @@
 const Stream = require('./Stream')
 
 class Streams {
-  constructor (db, { ns }) {
+  constructor (db, options) {
     this.db = db
-    this.ns = ns
+    this.ns = options?.ns ?? ''
   }
 
   get store() {
