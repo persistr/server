@@ -825,6 +825,122 @@ LIMIT 50
 
     if (results && !results.affectedRows) throw new Errors.EventNotFound(db, ns, streamID, eventID)
   }
+
+  // cursors
+
+  async listCursors (identity, db, eachCallback, endCallback) {
+    if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
+    const dbID = await findDatabaseID(db)
+    await sql.read('SELECT `name`, `ns`, `stream`, `from`, `after`, `to`, `until`, `types`, `limit`, `last`, `count` FROM `Cursors` WHERE `db` = ? AND `account` = ?', [ uuid2hex(dbID), uuid2hex(identity.account) ], {
+      each: row => {
+        eachCallback(rowToCursor(row))
+      }
+    })
+    if (endCallback) endCallback()
+  }
+
+  async createCursor (identity, db, name, options) {
+    if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
+    const dbID = await findDatabaseID(db)
+    const cursor = { db: uuid2hex(dbID), account: uuid2hex(identity.account), name, ns: options.ns, stream: options.stream, from: options.from, after: options.after, to: options.to, until: options.until, types: options.types, limit: options.limit }
+    let [error] = await to(sql.write('INSERT INTO `Cursors` SET ?', cursor))
+    if (error && error.message.includes('ER_DUP_ENTRY')) throw new Errors.CursorTaken(name)
+    if (error) throw error
+    return cursor
+  }
+
+  async readCursor (identity, db, name) {
+    if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
+    const dbID = await findDatabaseID(db)
+    let results = await sql.read('SELECT `name`, `ns`, `stream`, `from`, `after`, `to`, `until`, `types`, `limit`, `last`, `count` FROM `Cursors` WHERE `db` = ? AND `account` = ? AND `name` = ?', [ uuid2hex(dbID), uuid2hex(identity.account), name ])
+    if (!results || !results[0]) throw new Errors.CursorNotFound()
+    const row = results[0]
+    const cursor = rowToCursor(row)
+    return cursor
+  }
+
+  async cursorEvents (identity, db, name) {
+    if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
+    const cursor = await this.readCursor(identity, db, name)
+    let result = undefined
+    let selectors = { db, ns: cursor.selectors.ns ?? '', stream: cursor.selectors.stream, types: cursor.selectors.types, after: cursor.last ?? cursor.selectors.after, to: cursor.selectors.to, until: cursor.selectors.until, limit: 1 }
+    if (cursor.selectors.from && !cursor.last) selectors.from = cursor.selectors.from
+    await this.listEvents(identity, db, selectors, event => result = event)
+    return [ result, !cursor.selectors.to && !cursor.selectors.until ]
+  }
+
+  async advanceCursor (identity, db, name, last) {
+    const dbID = await findDatabaseID(db)
+    const [ event ] = await this.cursorEvents(identity, db, name)
+    if (event.meta.id !== last) throw new Errors.CursorConflict()
+    const cursor = await this.readCursor(identity, db, name)
+/*
+    let results = await sql.write('UPDATE `Cursors` SET ? WHERE `db` = ? AND `account` = ? AND `name` = ? AND `last` = ?', [ {
+      last,
+      count: cursor.count + 1
+    }, uuid2hex(dbID), uuid2hex(identity.account), name, cursor.last ?? null ])
+*/
+    let results = await sql.write('UPDATE `Cursors` SET ? WHERE `db` = ? AND `account` = ? AND `name` = ?', [ {
+      last: `${event.meta.stream}.${event.meta.id}`,
+      count: cursor.count + 1
+    }, uuid2hex(dbID), uuid2hex(identity.account), name ])
+    if (results && !results.affectedRows) throw new Errors.CursorConflict()
+
+    // Resolve any promises for open cursor.
+    this.signalActiveCursor(name)
+  }
+
+  async rewindCursor (identity, db, name) {
+    const dbID = await findDatabaseID(db)
+    let results = await sql.write('UPDATE `Cursors` SET ? WHERE `db` = ? AND `account` = ? AND `name` = ?', [ {
+      last: null,
+      count: 0
+    }, uuid2hex(dbID), uuid2hex(identity.account), name ])
+    if (results && !results.affectedRows) throw new Errors.CursorNotFound()
+
+    // Resolve any promises for open cursor.
+    this.signalActiveCursor(name)
+  }
+
+  async destroyCursor (identity, db, name) {
+    if (!identity.is.reader({ db })) throw new Errors.ForbiddenOrDatabaseNotFound('reader', db)
+    const dbID = await findDatabaseID(db)
+    let results = await sql.write('DELETE FROM `Cursors` WHERE `db` = ? AND `account` = ? AND `name` = ?', [ uuid2hex(dbID), uuid2hex(identity.account), name ])
+    if (results && !results.affectedRows) throw new Errors.CursorNotFound()
+  }
+
+  registerActiveCursor (cursor, { resolve, reject }) {
+    activeCursors.push({ cursor, resolve, reject })
+  }
+
+  signalActiveCursor (cursor) {
+    activeCursors.forEach(registration => {
+      if (registration.cursor === cursor) registration.resolve()
+    })
+  }
+
+  unregisterActiveCursor (cursor) {
+    activeCursors = activeCursors.filter(registration => {
+      if (registration.cursor === cursor) registration.resolve()
+      return registration.cursor !== cursor
+    })
+  }
+}
+
+activeCursors = []
+
+function rowToCursor(row) {
+  const cursor = { name: row.name, count: row.count ?? 0, selectors: {} }
+  if (row.last) cursor.last = row.last
+  if (row.ns) cursor.selectors.ns = row.ns
+  if (row.stream) cursor.selectors.stream = row.stream
+  if (row.from) cursor.selectors.from = row.from
+  if (row.after) cursor.selectors.after = row.after
+  if (row.to) cursor.selectors.to = row.to
+  if (row.until) cursor.selectors.until = row.until
+  if (row.types) cursor.selectors.types = row.types
+  if (row.limit) cursor.selectors.limit = row.limit
+  return cursor
 }
 
 module.exports = { Store, Errors }
