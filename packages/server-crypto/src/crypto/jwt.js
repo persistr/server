@@ -1,11 +1,12 @@
-const { config } = require('@persistr/server-config')
 const Errors = require('../errors')
 const Schemas = require('../schemas')
 const jwt = require('node-webtokens')
 
+const secret = process.env.PERSISTR_SERVER_SECRET
+
 async function encode (payload, scheme = 'Bearer') {
   return new Promise(function (resolve, reject) {
-    jwt.generate('PBES2-HS512+A256KW', 'A256GCM', payload, config.secret, (error, token) => {
+    jwt.generate('PBES2-HS512+A256KW', 'A256GCM', payload, secret, (error, token) => {
       if (error) { reject(new Errors.TokenGenerationFailed({ error })); return }
       if (token.error) { reject(new Errors.TokenGenerationFailed({ error: token.error })); return }
       resolve([scheme, token].join(' ').trim())
@@ -28,7 +29,7 @@ function decode (auth, scheme = 'Bearer') {
         //.setTokenLifetime(120000)
         .setAlgorithmList('PBES2-HS512+A256KW', 'A256GCM')
         .setIssuer(['api.persistr.com'])
-        .verify(config.secret, (error, token) => {
+        .verify(secret, (error, token) => {
           if (error) { reject(new Errors.InvalidAuthToken({ auth, error })); return }
           if (token.error) { reject(new Errors.InvalidAuthToken({ auth, error: token.error })); return }
           if (scheme === 'Bearer') {
