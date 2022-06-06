@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server-errors",
-  "version": "4.5.0",
+  "version": "4.5.8",
   "description": "Persistr Server error handling",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
