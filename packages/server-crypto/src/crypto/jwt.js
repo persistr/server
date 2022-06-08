@@ -2,7 +2,7 @@ const Errors = require('../errors')
 const Schemas = require('../schemas')
 const jwt = require('node-webtokens')
 
-const secret = process.env.PERSISTR_SERVER_SECRET
+const secret = process.env.PERSISTR_SECRET || ''
 
 async function encode (payload, scheme = 'Bearer') {
   return new Promise(function (resolve, reject) {
