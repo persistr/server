@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server-api",
-  "version": "4.5.8",
+  "version": "4.5.9",
   "description": "Persistr Server API",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
@@ -11,7 +11,7 @@
     "directory": "packages/server-api"
   },
   "dependencies": {
-    "@persistr/server-crypto": "^4.5.8",
+    "@persistr/server-crypto": "^4.5.9",
     "@persistr/server-debug": "^4.5.8",
     "@persistr/server-errors": "^4.5.8",
     "@persistr/server-fluent": "^4.5.8",

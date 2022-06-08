@@ -1,6 +1,6 @@
 {
   "name": "@persistr/server-store",
-  "version": "4.5.8",
+  "version": "4.5.9",
   "description": "Persistr Server backing data store",
   "main": "./src",
   "author": "Sasa Djolic <sasa.djolic@gmail.com> (https://www.linkedin.com/in/sasadjolic/)",
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@persistr/server-config": "^4.5.8",
-    "@persistr/server-crypto": "^4.5.8",
+    "@persistr/server-crypto": "^4.5.9",
     "@persistr/server-debug": "^4.5.8",
     "@persistr/server-errors": "^4.5.8",
     "@persistr/server-schemas": "^4.5.8",
